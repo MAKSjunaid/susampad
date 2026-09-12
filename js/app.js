@@ -7,6 +7,7 @@
  * - Map
  * - Strawberry customer marker
  * - Dragging marker
+ * - Keeping strawberry inside visible map
  * - Current location
  * - Searching location
  * - Loading delivery areas from JSON
@@ -53,15 +54,7 @@ const DELIVERY_AREAS_FILE =
 
 /* =========================================================
    DELIVERY AREA AUTO REFRESH
-   =========================================================
- *
- * The customer page checks the JSON file every 10 seconds.
- *
- * This means when you update delivery-areas.json on GitHub,
- * the customer page can automatically detect the change
- * without requiring Ctrl + F5.
- *
- * ========================================================= */
+   ========================================================= */
 
 const DELIVERY_AREA_REFRESH_INTERVAL =
     60000;
@@ -162,7 +155,256 @@ const customerMarker =
 
 
 /* =========================================================
+   KEEP STRAWBERRY INSIDE MAP
+   =========================================================
+ *
+ * The strawberry should never remain outside the visible
+ * map box.
+ *
+ * We use the current map bounds and keep a small safety
+ * margin from the edges.
+ *
+ * ========================================================= */
+
+function keepMarkerInsideMap() {
+
+    const bounds =
+        map.getBounds();
+
+
+    const north =
+        bounds.getNorth();
+
+    const south =
+        bounds.getSouth();
+
+    const east =
+        bounds.getEast();
+
+    const west =
+        bounds.getWest();
+
+
+    /*
+     * Calculate a small geographic margin.
+     *
+     * This keeps the strawberry slightly away from
+     * the exact edge of the map.
+     */
+
+    const latitudeMargin =
+        (north - south) * 0.08;
+
+
+    const longitudeMargin =
+        (east - west) * 0.08;
+
+
+    const minLat =
+        south + latitudeMargin;
+
+
+    const maxLat =
+        north - latitudeMargin;
+
+
+    const minLng =
+        west + longitudeMargin;
+
+
+    const maxLng =
+        east - longitudeMargin;
+
+
+    const currentPosition =
+        customerMarker.getLatLng();
+
+
+    let newLat =
+        currentPosition.lat;
+
+
+    let newLng =
+        currentPosition.lng;
+
+
+    let outside =
+        false;
+
+
+    /*
+     * Check latitude.
+     */
+
+    if (newLat < minLat) {
+
+        newLat = minLat;
+
+        outside = true;
+
+    }
+
+
+    if (newLat > maxLat) {
+
+        newLat = maxLat;
+
+        outside = true;
+
+    }
+
+
+    /*
+     * Check longitude.
+     */
+
+    if (newLng < minLng) {
+
+        newLng = minLng;
+
+        outside = true;
+
+    }
+
+
+    if (newLng > maxLng) {
+
+        newLng = maxLng;
+
+        outside = true;
+
+    }
+
+
+    /*
+     * If the marker went outside the allowed area,
+     * move it back inside.
+     */
+
+    if (outside) {
+
+        customerMarker.setLatLng(
+
+            [
+                newLat,
+                newLng
+            ]
+
+        );
+
+    }
+
+}
+
+
+/* =========================================================
    DRAG MARKER
+   ========================================================= */
+
+customerMarker.on(
+
+    "drag",
+
+    function () {
+
+        const position =
+            customerMarker.getLatLng();
+
+
+        const bounds =
+            map.getBounds();
+
+
+        const north =
+            bounds.getNorth();
+
+        const south =
+            bounds.getSouth();
+
+        const east =
+            bounds.getEast();
+
+        const west =
+            bounds.getWest();
+
+
+        /*
+         * Use 8% safety margin from the map edges.
+         */
+
+        const latitudeMargin =
+            (north - south) * 0.08;
+
+
+        const longitudeMargin =
+            (east - west) * 0.08;
+
+
+        const minLat =
+            south + latitudeMargin;
+
+
+        const maxLat =
+            north - latitudeMargin;
+
+
+        const minLng =
+            west + longitudeMargin;
+
+
+        const maxLng =
+            east - longitudeMargin;
+
+
+        let lat =
+            position.lat;
+
+
+        let lng =
+            position.lng;
+
+
+        /*
+         * If the user drags too far in one attempt,
+         * immediately bring the strawberry back to
+         * the middle of the currently visible map.
+         */
+
+        const outsideMap =
+
+            lat < minLat ||
+
+            lat > maxLat ||
+
+            lng < minLng ||
+
+            lng > maxLng;
+
+
+        if (outsideMap) {
+
+            const center =
+                map.getCenter();
+
+
+            customerMarker.setLatLng(
+
+                [
+                    center.lat,
+                    center.lng
+                ]
+
+            );
+
+        }
+
+    }
+
+);
+
+
+/* =========================================================
+   DRAG END
    ========================================================= */
 
 customerMarker.on(
@@ -171,8 +413,16 @@ customerMarker.on(
 
     function () {
 
+        /*
+         * Final safety check.
+         */
+
+        keepMarkerInsideMap();
+
+
         const position =
             customerMarker.getLatLng();
+
 
         checkDelivery(
 
@@ -188,6 +438,95 @@ customerMarker.on(
 
 
 /* =========================================================
+   KEEP STRAWBERRY INSIDE MAP AFTER MAP MOVEMENT
+   =========================================================
+ *
+ * If the map is moved by the user, make sure the strawberry
+ * remains visible.
+ *
+ * If the strawberry would be outside the newly visible map,
+ * move it to the center of the current map.
+ *
+ * ========================================================= */
+
+map.on(
+
+    "moveend",
+
+    function () {
+
+        const bounds =
+            map.getBounds();
+
+
+        const position =
+            customerMarker.getLatLng();
+
+
+        const latitudeMargin =
+            (bounds.getNorth() -
+             bounds.getSouth()) * 0.08;
+
+
+        const longitudeMargin =
+            (bounds.getEast() -
+             bounds.getWest()) * 0.08;
+
+
+        const minLat =
+            bounds.getSouth() +
+            latitudeMargin;
+
+
+        const maxLat =
+            bounds.getNorth() -
+            latitudeMargin;
+
+
+        const minLng =
+            bounds.getWest() +
+            longitudeMargin;
+
+
+        const maxLng =
+            bounds.getEast() -
+            longitudeMargin;
+
+
+        const outside =
+
+            position.lat < minLat ||
+
+            position.lat > maxLat ||
+
+            position.lng < minLng ||
+
+            position.lng > maxLng;
+
+
+        if (outside) {
+
+            const center =
+                map.getCenter();
+
+
+            customerMarker.setLatLng(
+
+                [
+                    center.lat,
+                    center.lng
+                ]
+
+            );
+
+        }
+
+    }
+
+);
+
+
+/* =========================================================
    DELIVERY AREA CACHE
    ========================================================= */
 
@@ -196,13 +535,7 @@ let deliveryAreas = null;
 
 /* =========================================================
    DELIVERY AREA VERSION
-   =========================================================
- *
- * We keep a simple JSON signature so that we can detect
- * whether the downloaded delivery areas are different
- * from the currently displayed areas.
- *
- * ========================================================= */
+   ========================================================= */
 
 let deliveryAreasSignature = null;
 
@@ -440,14 +773,6 @@ async function drawDeliveryAreas() {
 
     );
 
-
-    /*
-     * Do NOT automatically move the map to
-     * the polygon boundaries.
-     *
-     * The map remains around Hyderabad.
-     */
-
 }
 
 
@@ -460,24 +785,7 @@ drawDeliveryAreas();
 
 /* =========================================================
    AUTOMATICALLY REFRESH DELIVERY AREAS
-   =========================================================
- *
- * This checks GitHub's delivery-areas.json every 10 seconds.
- *
- * IMPORTANT:
- *
- * We do NOT reload the whole webpage.
- *
- * We only:
- *
- * 1. Download the latest JSON.
- * 2. Compare it with the currently loaded JSON.
- * 3. Redraw polygons only when something changed.
- *
- * The strawberry marker and current map position remain
- * untouched.
- *
- * ========================================================= */
+   ========================================================= */
 
 async function refreshDeliveryAreas() {
 
@@ -535,12 +843,6 @@ async function refreshDeliveryAreas() {
             );
 
 
-        /*
-         * Nothing changed.
-         *
-         * Do not redraw the polygons.
-         */
-
         if (
 
             newSignature ===
@@ -552,10 +854,6 @@ async function refreshDeliveryAreas() {
 
         }
 
-
-        /*
-         * Delivery areas have changed.
-         */
 
         console.log(
             "Delivery areas changed. Updating map..."
@@ -570,10 +868,6 @@ async function refreshDeliveryAreas() {
             newSignature;
 
 
-        /*
-         * Remove old polygons.
-         */
-
         deliveryPolygonLayers.forEach(
 
             function (layer) {
@@ -587,10 +881,6 @@ async function refreshDeliveryAreas() {
 
         deliveryPolygonLayers.length = 0;
 
-
-        /*
-         * Draw new polygons.
-         */
 
         deliveryAreas.forEach(
 
@@ -954,11 +1244,6 @@ function showResult(
 
 ) {
 
-    /*
-     * Make sure the result card uses the
-     * exact classes expected by index.html CSS.
-     */
-
     resultCard.className =
         "result-card " + kind;
 
@@ -975,10 +1260,6 @@ function showResult(
         message;
 
 
-    /*
-     * Hide both action buttons first.
-     */
-
     requestServiceButton.style.display =
         "none";
 
@@ -987,18 +1268,10 @@ function showResult(
         "none";
 
 
-    /*
-     * Show result card.
-     */
-
     resultSection.classList.remove(
         "hidden"
     );
 
-
-    /*
-     * Restart animation.
-     */
 
     resultSection.classList.remove(
         "show"
@@ -1027,10 +1300,6 @@ async function checkDelivery(
 
 ) {
 
-    /*
-     * Show a temporary checking message.
-     */
-
     showResult(
 
         "pending",
@@ -1047,10 +1316,6 @@ async function checkDelivery(
     const areas =
         await getDeliveryAreas();
 
-
-    /*
-     * No delivery areas configured.
-     */
 
     if (
 
@@ -1077,10 +1342,6 @@ async function checkDelivery(
     }
 
 
-    /*
-     * Check location.
-     */
-
     const inside =
         isInsideDeliveryArea(
 
@@ -1092,10 +1353,6 @@ async function checkDelivery(
 
         );
 
-
-    /* -------------------------------------------------------
-       INSIDE DELIVERY AREA
-       ------------------------------------------------------- */
 
     if (inside) {
 
@@ -1120,10 +1377,6 @@ async function checkDelivery(
 
     }
 
-
-    /* -------------------------------------------------------
-       OUTSIDE DELIVERY AREA
-       ------------------------------------------------------- */
 
     showResult(
 
@@ -1160,9 +1413,7 @@ function moveCustomerMarker(
 
         [
             lat,
-
             lng
-
         ]
 
     );
@@ -1172,9 +1423,7 @@ function moveCustomerMarker(
 
         [
             lat,
-
             lng
-
         ],
 
         15,
@@ -1319,7 +1568,7 @@ async function searchLocation() {
 
                 "Location not found",
 
-                "Try adding a landmark, colony, area, or city name and search again."
+                "Drag the strawberry directly to your exact location on the map, or try adding a landmark, colony, area, or city name and search again."
 
             );
 
@@ -1580,6 +1829,14 @@ window.addEventListener(
 
                 map.invalidateSize();
 
+
+                /*
+                 * Make sure the initial strawberry is
+                 * inside the visible map.
+                 */
+
+                keepMarkerInsideMap();
+
             },
 
             300
@@ -1606,6 +1863,8 @@ window.addEventListener(
             function () {
 
                 map.invalidateSize();
+
+                keepMarkerInsideMap();
 
             },
 
