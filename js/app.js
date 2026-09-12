@@ -1,4 +1,4 @@
- javascript
+
 /* =========================================================
    CUSTOMER DELIVERY CHECK
    =========================================================
@@ -26,6 +26,14 @@ const DEFAULT_LNG = 78.4867;
 
 
 /* =========================================================
+   DELIVERY AREA JSON FILE
+   ========================================================= */
+
+const DELIVERY_AREAS_FILE =
+    "data/delivery-areas.json";
+
+
+/* =========================================================
    MAP
    ========================================================= */
 
@@ -42,12 +50,12 @@ const map =
 /* =========================================================
    FREE MAP TILES
    =========================================================
-
-   Uses OpenStreetMap France tiles.
-
-   No API key is required.
-
-   ========================================================= */
+ *
+ * Uses OpenStreetMap France tiles.
+ *
+ * No API key is required.
+ *
+ * ========================================================= */
 
 L.tileLayer(
     "https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png",
@@ -487,35 +495,78 @@ useLocationButton.addEventListener(
 
 /* =========================================================
    LOAD DELIVERY AREAS
-   ========================================================= */
+   =========================================================
+ *
+ * Delivery areas are now loaded from:
+ *
+ * data/delivery-areas.json
+ *
+ * Example:
+ *
+ * {
+ *     "areas": [
+ *         [
+ *             {
+ *                 "lat": 17.385,
+ *                 "lng": 78.4867
+ *             }
+ *         ]
+ *     ]
+ * }
+ *
+ * ========================================================= */
 
-function getDeliveryAreas() {
-
-    const stored =
-        localStorage.getItem(
-            "fruitDeliveryAreas"
-        );
-
-
-    if (!stored) {
-
-        return [];
-
-    }
-
+async function getDeliveryAreas() {
 
     try {
 
-        return JSON.parse(
-            stored
-        );
+        const response =
+            await fetch(
+                DELIVERY_AREAS_FILE,
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load delivery areas."
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !data
+            ||
+            !Array.isArray(data.areas)
+        ) {
+
+            console.error(
+                "Invalid delivery area data."
+            );
+
+            return [];
+
+        }
+
+
+        return data.areas;
+
 
     } catch (error) {
 
         console.error(
-            "Invalid delivery area data:",
+            "Unable to load delivery areas:",
             error
         );
+
 
         return [];
 
@@ -528,13 +579,13 @@ function getDeliveryAreas() {
    CHECK DELIVERY
    ========================================================= */
 
-function checkDelivery(
+async function checkDelivery(
     lat,
     lng
 ) {
 
     const deliveryAreas =
-        getDeliveryAreas();
+        await getDeliveryAreas();
 
 
     let isInside =
@@ -730,4 +781,3 @@ function showResult(
     }
 
 }
- 
