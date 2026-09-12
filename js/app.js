@@ -1,23 +1,41 @@
 
 /* =========================================================
-   CUSTOMER DELIVERY CHECK
+   SUSAMPAD CUSTOMER DELIVERY CHECK
    =========================================================
  *
  * This file handles:
  *
  * - Map
- * - Customer marker
+ * - Strawberry customer marker
  * - Dragging marker
  * - Current location
  * - Searching location
- * - Loading delivery areas
+ * - Loading delivery areas from JSON
  * - Checking whether customer is inside delivery area
+ * - Showing delivery result
+ *
+ * Delivery areas are loaded from:
+ *
+ * data/delivery-areas.json
+ *
+ * Expected JSON:
+ *
+ * {
+ *   "areas": [
+ *     [
+ *       {
+ *         "lat": 17.35,
+ *         "lng": 78.39
+ *       }
+ *     ]
+ *   ]
+ * }
  *
  * ========================================================= */
 
 
 /* =========================================================
-   HYDERABAD DEFAULT LOCATION
+   DEFAULT MAP LOCATION
    ========================================================= */
 
 const DEFAULT_LAT = 17.3850;
@@ -26,7 +44,7 @@ const DEFAULT_LNG = 78.4867;
 
 
 /* =========================================================
-   DELIVERY AREA JSON FILE
+   DELIVERY AREA FILE
    ========================================================= */
 
 const DELIVERY_AREAS_FILE =
@@ -38,92 +56,68 @@ const DELIVERY_AREAS_FILE =
    ========================================================= */
 
 const map =
-    L.map("map").setView(
+    L.map("map", {
+
+        scrollWheelZoom: false
+
+    }).setView(
+
         [
             DEFAULT_LAT,
             DEFAULT_LNG
         ],
-        11
+
+        12
+
     );
 
 
 /* =========================================================
-   FREE MAP TILES
-   =========================================================
- *
- * Uses OpenStreetMap France tiles.
- *
- * No API key is required.
- *
- * ========================================================= */
+   MAP TILES
+   ========================================================= */
 
 L.tileLayer(
-    "https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png",
+
+    "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+
     {
-        maxZoom: 20,
 
         attribution:
-            "&copy; OpenStreetMap contributors"
+            "&copy; OpenStreetMap contributors &copy; CARTO",
+
+        maxZoom: 19
+
     }
+
 ).addTo(map);
 
 
 /* =========================================================
-   PROFESSIONAL FRUIT BOWL PIN
-   =========================================================
- *
- * Large green delivery pin with a small fruit-bowl
- * icon in the center.
- *
- * The pin keeps the same visual size when the
- * customer zooms the map.
- *
- * ========================================================= */
+   STRAWBERRY MARKER
+   ========================================================= */
 
-const customerPinIcon =
+const strawberryIcon =
     L.divIcon({
 
-        className:
-            "customer-pin",
+        className: "",
 
         html: `
-            <div class="customer-pin-wrapper">
+            <div class="susampad-marker">
 
-                <div class="customer-pin-body">
+                <span class="ring"></span>
 
-                    <div class="fruit-bowl-icon">
+                <span class="ring"></span>
 
-                        <div class="fruit fruit-red"></div>
+                <span class="ring"></span>
 
-                        <div class="fruit fruit-orange"></div>
-
-                        <div class="fruit fruit-yellow"></div>
-
-                        <div class="fruit fruit-green"></div>
-
-                        <div class="bowl"></div>
-
-                    </div>
-
-                </div>
+                <span class="core">🍓</span>
 
             </div>
         `,
 
-        iconSize: [
-            72,
-            88
-        ],
+        iconSize: [1, 1],
 
-        iconAnchor: [
-            36,
-            86
-        ],
-
-        popupAnchor: [
-            0,
-            -86
-        ]
+        iconAnchor: [0, 0]
 
     });
 
@@ -132,59 +126,764 @@ const customerPinIcon =
    CUSTOMER MARKER
    ========================================================= */
 
-let customerMarker =
+const customerMarker =
     L.marker(
+
         [
             DEFAULT_LAT,
             DEFAULT_LNG
         ],
+
         {
+
             draggable: true,
 
-            icon:
-                customerPinIcon
+            icon: strawberryIcon
+
         }
+
     ).addTo(map);
 
 
 /* =========================================================
-   INITIAL CHECK
-   =========================================================
- *
- * IMPORTANT:
- *
- * Do NOT check the default Hyderabad location
- * automatically.
- *
- * The delivery result will only be shown after
- * the user:
- *
- * - searches
- * - uses current location
- * - drags the marker
- *
- * ========================================================= */
-
-
-/* =========================================================
-   MARKER DRAG
+   DRAG MARKER
    ========================================================= */
 
 customerMarker.on(
+
     "dragend",
+
     function () {
 
         const position =
             customerMarker.getLatLng();
 
-
         checkDelivery(
+
             position.lat,
+
             position.lng
+
         );
 
     }
+
 );
+
+
+/* =========================================================
+   DELIVERY AREA CACHE
+   ========================================================= */
+
+let deliveryAreas = null;
+
+
+/* =========================================================
+   LOAD DELIVERY AREAS
+   ========================================================= */
+
+async function getDeliveryAreas() {
+
+    if (deliveryAreas !== null) {
+
+        return deliveryAreas;
+
+    }
+
+    try {
+
+        const response =
+            await fetch(
+
+                DELIVERY_AREAS_FILE +
+                "?t=" +
+                Date.now(),
+
+                {
+
+                    cache: "no-store"
+
+                }
+
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load delivery areas."
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+
+            !data ||
+
+            !Array.isArray(data.areas)
+
+        ) {
+
+            console.error(
+                "Invalid delivery area JSON."
+            );
+
+            deliveryAreas = [];
+
+            return deliveryAreas;
+
+        }
+
+
+        deliveryAreas =
+            data.areas;
+
+
+        console.log(
+            "Delivery areas loaded:",
+            deliveryAreas
+        );
+
+
+        return deliveryAreas;
+
+    }
+
+    catch (error) {
+
+        console.error(
+
+            "Unable to load delivery areas:",
+
+            error
+
+        );
+
+        deliveryAreas = [];
+
+        return deliveryAreas;
+
+    }
+
+}
+
+
+/* =========================================================
+   DRAW DELIVERY AREAS
+   ========================================================= */
+
+const deliveryPolygonLayers = [];
+
+
+async function drawDeliveryAreas() {
+
+    const areas =
+        await getDeliveryAreas();
+
+
+    deliveryPolygonLayers.forEach(
+
+        function (layer) {
+
+            map.removeLayer(layer);
+
+        }
+
+    );
+
+
+    deliveryPolygonLayers.length = 0;
+
+
+    areas.forEach(
+
+        function (area) {
+
+            if (
+
+                !Array.isArray(area) ||
+
+                area.length < 3
+
+            ) {
+
+                return;
+
+            }
+
+
+            const validPoints =
+                area
+
+                    .filter(
+
+                        function (point) {
+
+                            return (
+
+                                point &&
+
+                                typeof point.lat === "number" &&
+
+                                typeof point.lng === "number"
+
+                            );
+
+                        }
+
+                    )
+
+                    .map(
+
+                        function (point) {
+
+                            return [
+
+                                point.lat,
+
+                                point.lng
+
+                            ];
+
+                        }
+
+                    );
+
+
+            if (
+
+                validPoints.length < 3
+
+            ) {
+
+                return;
+
+            }
+
+
+            const polygon =
+                L.polygon(
+
+                    validPoints,
+
+                    {
+
+                        color: "#63b23f",
+
+                        weight: 3,
+
+                        opacity: 1,
+
+                        fillColor: "#63b23f",
+
+                        fillOpacity: 0.16
+
+                    }
+
+                ).addTo(map);
+
+
+            deliveryPolygonLayers.push(
+
+                polygon
+
+            );
+
+        }
+
+    );
+
+
+    /*
+     * Do NOT automatically move the map to
+     * the polygon boundaries.
+     *
+     * The map remains around Hyderabad.
+     */
+
+}
+
+
+/* =========================================================
+   INITIALIZE DELIVERY AREAS
+   ========================================================= */
+
+drawDeliveryAreas();
+
+
+/* =========================================================
+   POINT INSIDE POLYGON
+   ========================================================= */
+
+function pointInsidePolygon(
+
+    lat,
+
+    lng,
+
+    polygon
+
+) {
+
+    let inside = false;
+
+
+    for (
+
+        let i = 0,
+
+            j = polygon.length - 1;
+
+        i < polygon.length;
+
+        j = i++
+
+    ) {
+
+        const xi =
+            polygon[i].lng;
+
+        const yi =
+            polygon[i].lat;
+
+        const xj =
+            polygon[j].lng;
+
+        const yj =
+            polygon[j].lat;
+
+
+        const intersect =
+
+            (
+
+                (yi > lat) !==
+
+                (yj > lat)
+
+            )
+
+            &&
+
+            (
+
+                lng <
+
+                (
+
+                    ((xj - xi) *
+
+                        (lat - yi) /
+
+                        (yj - yi))
+
+                    + xi
+
+                )
+
+            );
+
+
+        if (intersect) {
+
+            inside = !inside;
+
+        }
+
+    }
+
+
+    return inside;
+
+}
+
+
+/* =========================================================
+   CHECK WHETHER LOCATION IS INSIDE ANY AREA
+   ========================================================= */
+
+function isInsideDeliveryArea(
+
+    lat,
+
+    lng,
+
+    areas
+
+) {
+
+    for (
+
+        const area of areas
+
+    ) {
+
+        if (
+
+            !Array.isArray(area) ||
+
+            area.length < 3
+
+        ) {
+
+            continue;
+
+        }
+
+
+        const validPoints =
+            area.filter(
+
+                function (point) {
+
+                    return (
+
+                        point &&
+
+                        typeof point.lat === "number" &&
+
+                        typeof point.lng === "number"
+
+                    );
+
+                }
+
+            );
+
+
+        if (
+
+            validPoints.length < 3
+
+        ) {
+
+            continue;
+
+        }
+
+
+        if (
+
+            pointInsidePolygon(
+
+                lat,
+
+                lng,
+
+                validPoints
+
+            )
+
+        ) {
+
+            return true;
+
+        }
+
+    }
+
+
+    return false;
+
+}
+
+
+/* =========================================================
+   RESULT ELEMENTS
+   ========================================================= */
+
+const resultSection =
+    document.getElementById("result");
+
+
+const resultCard =
+    document.getElementById("resultCard");
+
+
+const resultIcon =
+    document.getElementById("resultIcon");
+
+
+const resultTitle =
+    document.getElementById("resultTitle");
+
+
+const resultMessage =
+    document.getElementById("resultMessage");
+
+
+const requestServiceButton =
+    document.getElementById(
+        "requestServiceButton"
+    );
+
+
+const deliverHereButton =
+    document.getElementById(
+        "deliverHereButton"
+    );
+
+
+/* =========================================================
+   SHOW RESULT
+   ========================================================= */
+
+function showResult(
+
+    kind,
+
+    icon,
+
+    title,
+
+    message
+
+) {
+
+    /*
+     * Make sure the result card uses the
+     * exact classes expected by index.html CSS.
+     */
+
+    resultCard.className =
+        "result-card " + kind;
+
+
+    resultIcon.textContent =
+        icon;
+
+
+    resultTitle.textContent =
+        title;
+
+
+    resultMessage.textContent =
+        message;
+
+
+    /*
+     * Hide both action buttons first.
+     */
+
+    requestServiceButton.style.display =
+        "none";
+
+
+    deliverHereButton.style.display =
+        "none";
+
+
+    /*
+     * Show result card.
+     */
+
+    resultSection.classList.remove(
+        "hidden"
+    );
+
+
+    /*
+     * Restart animation.
+     */
+
+    resultSection.classList.remove(
+        "show"
+    );
+
+
+    void resultSection.offsetWidth;
+
+
+    resultSection.classList.add(
+        "show"
+    );
+
+}
+
+
+/* =========================================================
+   CHECK DELIVERY
+   ========================================================= */
+
+async function checkDelivery(
+
+    lat,
+
+    lng
+
+) {
+
+    /*
+     * Show a temporary checking message.
+     */
+
+    showResult(
+
+        "pending",
+
+        "…",
+
+        "Checking your location…",
+
+        "Please wait while we check whether Susampad delivers here."
+
+    );
+
+
+    const areas =
+        await getDeliveryAreas();
+
+
+    /*
+     * No delivery areas configured.
+     */
+
+    if (
+
+        !areas ||
+
+        areas.length === 0
+
+    ) {
+
+        showResult(
+
+            "pending",
+
+            "?",
+
+            "Delivery area not configured",
+
+            "Our delivery areas have not been configured yet. Please check again later."
+
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Check location.
+     */
+
+    const inside =
+        isInsideDeliveryArea(
+
+            lat,
+
+            lng,
+
+            areas
+
+        );
+
+
+    /* -------------------------------------------------------
+       INSIDE DELIVERY AREA
+       ------------------------------------------------------- */
+
+    if (inside) {
+
+        showResult(
+
+            "yes",
+
+            "✓",
+
+            "We deliver here!",
+
+            "Yay! Your location is part of the Susampad fresh-bowl family, and our fresh bowls can make their way to your doorstep. 🍓"
+
+        );
+
+
+        deliverHereButton.style.display =
+            "inline-flex";
+
+
+        return;
+
+    }
+
+
+    /* -------------------------------------------------------
+       OUTSIDE DELIVERY AREA
+       ------------------------------------------------------- */
+
+    showResult(
+
+        "no",
+
+        "✕",
+
+        "We don't deliver here yet",
+
+        "Looks like our fresh bowls haven’t reached your neighbourhood just yet. We are growing fast, so check back soon!"
+
+    );
+
+
+    requestServiceButton.style.display =
+        "inline-flex";
+
+}
+
+
+/* =========================================================
+   MOVE CUSTOMER MARKER
+   ========================================================= */
+
+function moveCustomerMarker(
+
+    lat,
+
+    lng
+
+) {
+
+    customerMarker.setLatLng(
+
+        [
+            lat,
+            lng
+        ]
+
+    );
+
+
+    map.flyTo(
+
+        [
+            lat,
+            lng
+        ],
+
+        15,
+
+        {
+
+            duration: 0.9
+
+        }
+
+    );
+
+
+    checkDelivery(
+
+        lat,
+
+        lng
+
+    );
+
+}
 
 
 /* =========================================================
@@ -207,32 +906,6 @@ const searchButton =
    SEARCH LOCATION
    ========================================================= */
 
-searchButton.addEventListener(
-    "click",
-    searchLocation
-);
-
-
-locationSearch.addEventListener(
-    "keydown",
-    function (event) {
-
-        if (
-            event.key === "Enter"
-        ) {
-
-            searchLocation();
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   SEARCH FUNCTION
-   ========================================================= */
-
 async function searchLocation() {
 
     const query =
@@ -241,8 +914,16 @@ async function searchLocation() {
 
     if (!query) {
 
-        alert(
-            "Please enter a location."
+        showResult(
+
+            "pending",
+
+            "?",
+
+            "Enter a location",
+
+            "Please enter your area, neighbourhood, landmark, or location."
+
         );
 
         return;
@@ -257,31 +938,42 @@ async function searchLocation() {
 
 
         searchButton.textContent =
-            "Searching...";
+            "Searching…";
 
 
         const url =
+
             "https://nominatim.openstreetmap.org/search" +
+
             "?format=json" +
+
             "&limit=1" +
+
             "&q=" +
+
             encodeURIComponent(
-                query +
-                ", Hyderabad, India"
+
+                query + ", Hyderabad, India"
+
             );
 
 
         const response =
             await fetch(
+
                 url,
+
                 {
+
                     headers: {
 
                         "Accept":
                             "application/json"
 
                     }
+
                 }
+
             );
 
 
@@ -299,11 +991,23 @@ async function searchLocation() {
 
 
         if (
-            !results.length
+
+            !results ||
+
+            results.length === 0
+
         ) {
 
-            alert(
-                "Location not found. Please try another location."
+            showResult(
+
+                "pending",
+
+                "?",
+
+                "Location not found",
+
+                "Try adding a landmark, colony, area, or city name and search again."
+
             );
 
             return;
@@ -313,43 +1017,63 @@ async function searchLocation() {
 
         const lat =
             parseFloat(
+
                 results[0].lat
+
             );
 
 
         const lng =
             parseFloat(
+
                 results[0].lon
+
             );
 
 
         moveCustomerMarker(
+
             lat,
+
             lng
+
         );
 
+    }
 
-    } catch (error) {
+    catch (error) {
 
         console.error(
+
             "Search error:",
+
             error
+
         );
 
 
-        alert(
-            "Unable to search this location."
+        showResult(
+
+            "pending",
+
+            "!",
+
+            "Something went wrong",
+
+            "We couldn't reach the location service. Please check your connection and try again."
+
         );
 
+    }
 
-    } finally {
+    finally {
 
         searchButton.disabled =
             false;
 
 
         searchButton.textContent =
-            "Search";
+            "🔍 Search";
 
     }
 
@@ -357,41 +1081,45 @@ async function searchLocation() {
 
 
 /* =========================================================
-   MOVE MARKER
+   SEARCH BUTTON
    ========================================================= */
 
-function moveCustomerMarker(
-    lat,
-    lng
-) {
+searchButton.addEventListener(
 
-    customerMarker.setLatLng(
-        [
-            lat,
-            lng
-        ]
-    );
+    "click",
 
+    searchLocation
 
-    map.setView(
-        [
-            lat,
-            lng
-        ],
-        15
-    );
-
-
-    checkDelivery(
-        lat,
-        lng
-    );
-
-}
+);
 
 
 /* =========================================================
-   CURRENT LOCATION
+   ENTER KEY SEARCH
+   ========================================================= */
+
+locationSearch.addEventListener(
+
+    "keydown",
+
+    function (event) {
+
+        if (
+
+            event.key === "Enter"
+
+        ) {
+
+            searchLocation();
+
+        }
+
+    }
+
+);
+
+
+/* =========================================================
+   CURRENT LOCATION BUTTON
    ========================================================= */
 
 const useLocationButton =
@@ -401,15 +1129,27 @@ const useLocationButton =
 
 
 useLocationButton.addEventListener(
+
     "click",
+
     function () {
 
         if (
+
             !navigator.geolocation
+
         ) {
 
-            alert(
-                "Your browser does not support location services."
+            showResult(
+
+                "pending",
+
+                "!",
+
+                "Location not supported",
+
+                "Your browser doesn't support automatic location. Please search for your area instead."
+
             );
 
             return;
@@ -421,8 +1161,12 @@ useLocationButton.addEventListener(
             true;
 
 
-        useLocationButton.textContent =
-            "Getting your location...";
+        const originalLabel =
+            useLocationButton.innerHTML;
+
+
+        useLocationButton.innerHTML =
+            "Locating…";
 
 
         navigator.geolocation.getCurrentPosition(
@@ -438,8 +1182,11 @@ useLocationButton.addEventListener(
 
 
                 moveCustomerMarker(
+
                     lat,
+
                     lng
+
                 );
 
 
@@ -447,8 +1194,8 @@ useLocationButton.addEventListener(
                     false;
 
 
-                useLocationButton.textContent =
-                    "📍 Use my current location";
+                useLocationButton.innerHTML =
+                    originalLabel;
 
             },
 
@@ -456,13 +1203,24 @@ useLocationButton.addEventListener(
             function (error) {
 
                 console.error(
+
                     "Location error:",
+
                     error
+
                 );
 
 
-                alert(
-                    "Unable to get your location. Please allow location access."
+                showResult(
+
+                    "pending",
+
+                    "!",
+
+                    "Couldn't get your location",
+
+                    "Please allow location access, or search for your area above instead."
+
                 );
 
 
@@ -470,314 +1228,95 @@ useLocationButton.addEventListener(
                     false;
 
 
-                useLocationButton.textContent =
-                    "📍 Use my current location";
+                useLocationButton.innerHTML =
+                    originalLabel;
 
             },
 
 
             {
-                enableHighAccuracy:
-                    true,
 
-                timeout:
-                    10000,
+                enableHighAccuracy: true,
 
-                maximumAge:
-                    0
+                timeout: 10000,
+
+                maximumAge: 0
+
             }
 
         );
 
     }
+
 );
 
 
 /* =========================================================
-   LOAD DELIVERY AREAS
-   =========================================================
- *
- * Delivery areas are now loaded from:
- *
- * data/delivery-areas.json
- *
- * Example:
- *
- * {
- *     "areas": [
- *         [
- *             {
- *                 "lat": 17.385,
- *                 "lng": 78.4867
- *             }
- *         ]
- *     ]
- * }
- *
- * ========================================================= */
-
-async function getDeliveryAreas() {
-
-    try {
-
-        const response =
-            await fetch(
-                DELIVERY_AREAS_FILE,
-                {
-                    cache: "no-store"
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load delivery areas."
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !data
-            ||
-            !Array.isArray(data.areas)
-        ) {
-
-            console.error(
-                "Invalid delivery area data."
-            );
-
-            return [];
-
-        }
-
-
-        return data.areas;
-
-
-    } catch (error) {
-
-        console.error(
-            "Unable to load delivery areas:",
-            error
-        );
-
-
-        return [];
-
-    }
-
-}
-
-
-/* =========================================================
-   CHECK DELIVERY
+   INITIAL MAP RESIZE
    ========================================================= */
 
-async function checkDelivery(
-    lat,
-    lng
-) {
+window.addEventListener(
 
-    const deliveryAreas =
-        await getDeliveryAreas();
+    "load",
 
+    function () {
 
-    let isInside =
-        false;
+        setTimeout(
 
+            function () {
 
-    for (
-        const area of deliveryAreas
-    ) {
+                map.invalidateSize();
 
-        if (
-            pointInsidePolygon(
-                lat,
-                lng,
-                area
-            )
-        ) {
+            },
 
-            isInside =
-                true;
+            300
 
-            break;
-
-        }
+        );
 
     }
 
-
-    showResult(
-        isInside
-    );
-
-}
+);
 
 
 /* =========================================================
-   POINT INSIDE POLYGON
-   =========================================================
- *
- * Ray-casting algorithm.
- *
- * Determines whether a latitude/longitude
- * point is inside a polygon.
- *
- * ========================================================= */
-
-function pointInsidePolygon(
-    lat,
-    lng,
-    polygon
-) {
-
-    let inside =
-        false;
-
-
-    for (
-        let i = 0,
-            j = polygon.length - 1;
-
-        i < polygon.length;
-
-        j = i++
-    ) {
-
-        const xi =
-            polygon[i].lng;
-
-
-        const yi =
-            polygon[i].lat;
-
-
-        const xj =
-            polygon[j].lng;
-
-
-        const yj =
-            polygon[j].lat;
-
-
-        const intersect =
-            (
-                yi > lat
-            ) !== (
-                yj > lat
-            )
-            &&
-            (
-                lng <
-                (
-                    (xj - xi)
-                    *
-                    (lat - yi)
-                    /
-                    (yj - yi)
-                )
-                +
-                xi
-            );
-
-
-        if (intersect) {
-
-            inside =
-                !inside;
-
-        }
-
-    }
-
-
-    return inside;
-
-}
-
-
-/* =========================================================
-   SHOW RESULT
+   WINDOW RESIZE
    ========================================================= */
 
-function showResult(
-    available
-) {
+window.addEventListener(
 
-    const result =
-        document.getElementById(
-            "result"
+    "resize",
+
+    function () {
+
+        setTimeout(
+
+            function () {
+
+                map.invalidateSize();
+
+            },
+
+            100
+
         );
-
-
-    const title =
-        document.getElementById(
-            "resultTitle"
-        );
-
-
-    const message =
-        document.getElementById(
-            "resultMessage"
-        );
-
-
-    const icon =
-        document.getElementById(
-            "resultIcon"
-        );
-
-
-    result.classList.remove(
-        "hidden",
-        "available",
-        "unavailable"
-    );
-
-
-    if (available) {
-
-        result.classList.add(
-            "available"
-        );
-
-
-        icon.textContent =
-            "✓";
-
-
-        title.textContent =
-            "Yes! We deliver here.";
-
-
-        message.textContent =
-            "Great! Your location is within our delivery area.";
-
-    } else {
-
-        result.classList.add(
-            "unavailable"
-        );
-
-
-        icon.textContent =
-            "×";
-
-
-        title.textContent =
-            "Sorry, we don't deliver here.";
-
-
-        message.textContent =
-            "We are not currently serving this location.";
 
     }
 
-}
+);
+
+
+/* =========================================================
+   IMPORTANT:
+   DO NOT SHOW "DELIVERY AREA NOT CONFIGURED"
+   ON PAGE LOAD.
+   =========================================================
+ *
+ * The customer should first see the map and strawberry pin.
+ *
+ * The delivery result appears when:
+ *
+ * - User searches
+ * - User uses current location
+ * - User drags the strawberry pin
+ *
+ * ========================================================= */
