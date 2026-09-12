@@ -1,482 +1,157 @@
 /* =========================================================
-DELIVERY AREA ADMIN
-===================
+   SUSAMPAD ADMIN
+   =========================================================
+ *
+ * This file handles:
+ *
+ * - Admin login
+ * - Delivery area map
+ * - Drawing polygons
+ * - Editing polygons
+ * - Deleting polygons
+ * - Loading delivery areas from JSON
+ * - Exporting delivery areas as delivery-areas.json
+ *
+ * ========================================================= */
 
-*
-* Handles:
-*
-* * Hardcoded login
-* * Map
-* * Drawing polygons
-* * Editing polygons
-* * Deleting polygons
-* * Saving polygons
-* * Loading saved polygons
-*
-* ========================================================= */
 
 /* =========================================================
-ADMIN CREDENTIALS
-=================
-
-*
-* TEMPORARY ONLY.
-*
-* Change these values whenever you want.
-*
-* ========================================================= */
+   ADMIN LOGIN
+   ========================================================= */
 
 const ADMIN_USERNAME = "admin";
-
 const ADMIN_PASSWORD = "fruit123";
 
-/* =========================================================
-LOGIN ELEMENTS
-========================================================= */
 
 const loginScreen =
-document.getElementById(
-"loginScreen"
-);
+    document.getElementById("loginScreen");
 
-const adminScreen =
-document.getElementById(
-"adminScreen"
-);
-
-const username =
-document.getElementById(
-"username"
-);
-
-const password =
-document.getElementById(
-"password"
-);
+const adminPanel =
+    document.getElementById("adminPanel");
 
 const loginButton =
-document.getElementById(
-"loginButton"
-);
+    document.getElementById("loginButton");
+
+const usernameInput =
+    document.getElementById("username");
+
+const passwordInput =
+    document.getElementById("password");
 
 const loginError =
-document.getElementById(
-"loginError"
-);
+    document.getElementById("loginError");
 
-/* =========================================================
-LOGIN
-========================================================= */
 
-loginButton.addEventListener(
-"click",
-login
-);
+loginButton.addEventListener("click", function () {
 
-password.addEventListener(
-"keydown",
-function (event) {
+    const username =
+        usernameInput.value.trim();
 
- 
-    if (event.key === "Enter") {
+    const password =
+        passwordInput.value;
 
-        login();
+
+    if (
+        username === ADMIN_USERNAME &&
+        password === ADMIN_PASSWORD
+    ) {
+
+        loginScreen.style.display = "none";
+
+        adminPanel.style.display = "block";
+
+        initializeMap();
+
+    } else {
+
+        loginError.textContent =
+            "Invalid username or password.";
 
     }
 
-}
- 
+});
 
-);
-
-function login() {
-
- 
-const enteredUsername =
-    username.value.trim();
-
-
-const enteredPassword =
-    password.value;
-
-
-if (
-    enteredUsername === ADMIN_USERNAME
-    &&
-    enteredPassword === ADMIN_PASSWORD
-) {
-
-    loginScreen.classList.add(
-        "hidden"
-    );
-
-
-    adminScreen.classList.remove(
-        "hidden"
-    );
-
-
-    initializeAdminMap();
-
-
-} else {
-
-    loginError.textContent =
-        "Invalid username or password.";
-
-}
- 
-
-}
 
 /* =========================================================
-LOGOUT
-========================================================= */
+   DELIVERY AREA FILE
+   ========================================================= */
 
-const logoutButton =
-document.getElementById(
-"logoutButton"
-);
+const DELIVERY_AREAS_FILE =
+    "data/delivery-areas.json";
 
-logoutButton.addEventListener(
-"click",
-function () {
-
- 
-    adminScreen.classList.add(
-        "hidden"
-    );
-
-
-    loginScreen.classList.remove(
-        "hidden"
-    );
-
-
-    username.value = "";
-
-    password.value = "";
-
-    loginError.textContent = "";
-
-}
- 
-
-);
 
 /* =========================================================
-MAP VARIABLES
-========================================================= */
+   MAP VARIABLES
+   ========================================================= */
 
-let adminMap = null;
+let map;
 
-let drawnItems = null;
+let drawnItems;
+
 
 /* =========================================================
-INITIALIZE MAP
-========================================================= */
+   INITIALIZE MAP
+   ========================================================= */
 
-function initializeAdminMap() {
+function initializeMap() {
 
- 
-if (adminMap !== null) {
-
-    adminMap.invalidateSize();
-
-    return;
-
-}
-
-
-adminMap =
-    L.map("adminMap").setView(
+    map = L.map("map").setView(
         [17.3850, 78.4867],
         11
     );
 
 
-/* =====================================================
-   FREE OPENSTREETMAP-BASED MAP TILES
-   =====================================================
+    /* -----------------------------------------------------
+       OPEN STREET MAP
+       ----------------------------------------------------- */
 
-   Uses the OSM France tile server.
-
-   No API key is required.
-
-   ===================================================== */
-
-L.tileLayer(
-    "https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png",
-    {
-        maxZoom: 20,
-
-        attribution:
-            '&copy; OpenStreetMap contributors'
-    }
-).addTo(adminMap);
-
-
-/* =====================================================
-   LAYER FOR POLYGONS
-   ===================================================== */
-
-drawnItems =
-    new L.FeatureGroup();
-
-
-adminMap.addLayer(
-    drawnItems
-);
-
-
-/* =====================================================
-   DRAWING CONTROLS
-   ===================================================== */
-
-const drawControl =
-    new L.Control.Draw({
-
-        position: "topright",
-
-        draw: {
-
-            polyline: false,
-
-            rectangle: false,
-
-            circle: false,
-
-            circlemarker: false,
-
-            marker: false,
-
-            polygon: {
-
-                allowIntersection: false,
-
-                showArea: true,
-
-                shapeOptions: {
-
-                    color: "#22c55e",
-
-                    fillColor: "#22c55e",
-
-                    fillOpacity: 0.25
-
-                }
-
-            }
-
-        },
-
-        edit: {
-
-            featureGroup:
-                drawnItems,
-
-            remove: true
-
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png",
+        {
+            maxZoom: 19,
+            attribution:
+                '&copy; OpenStreetMap contributors'
         }
+    ).addTo(map);
 
-    });
 
+    /* -----------------------------------------------------
+       DRAWN ITEMS
+       ----------------------------------------------------- */
 
-adminMap.addControl(
-    drawControl
-);
+    drawnItems =
+        new L.FeatureGroup();
 
+    map.addLayer(drawnItems);
 
-/* =====================================================
-   LOAD EXISTING AREAS
-   ===================================================== */
 
-loadSavedAreas();
+    /* -----------------------------------------------------
+       DRAW CONTROLS
+       ----------------------------------------------------- */
 
+    const drawControl =
+        new L.Control.Draw({
 
-/* =====================================================
-   POLYGON CREATED
-   ===================================================== */
+            edit: {
 
-adminMap.on(
-    L.Draw.Event.CREATED,
-    function (event) {
+                featureGroup:
+                    drawnItems,
 
-        const layer =
-            event.layer;
+                remove: true
 
+            },
 
-        drawnItems.addLayer(
-            layer
-        );
+            draw: {
 
-    }
-);
+                polygon: {
 
+                    allowIntersection: false,
 
-/* =====================================================
-   POLYGON EDITED
-   ===================================================== */
+                    showArea: true,
 
-adminMap.on(
-    L.Draw.Event.EDITED,
-    function () {
+                    shapeOptions: {
 
-        console.log(
-            "Delivery area edited."
-        );
-
-    }
-);
-
-
-/* =====================================================
-   POLYGON DELETED
-   ===================================================== */
-
-adminMap.on(
-    L.Draw.Event.DELETED,
-    function () {
-
-        console.log(
-            "Delivery area deleted."
-        );
-
-    }
-);
- 
-
-}
-
-/* =========================================================
-SAVE BUTTON
-========================================================= */
-
-const saveButton =
-document.getElementById(
-"saveButton"
-);
-
-saveButton.addEventListener(
-"click",
-saveAreas
-);
-
-/* =========================================================
-SAVE AREAS
-========================================================= */
-
-function saveAreas() {
-
- 
-const areas = [];
-
-
-drawnItems.eachLayer(
-    function (layer) {
-
-        if (
-            layer instanceof
-            L.Polygon
-        ) {
-
-            const latLngs =
-                layer.getLatLngs();
-
-
-            /*
-             * Polygon normally contains
-             * one array of coordinates.
-             */
-
-            const points =
-                latLngs[0].map(
-                    function (point) {
-
-                        return {
-
-                            lat: point.lat,
-
-                            lng: point.lng
-
-                        };
-
-                    }
-                );
-
-
-            areas.push(
-                points
-            );
-
-        }
-
-    }
-);
-
-
-localStorage.setItem(
-    "fruitDeliveryAreas",
-    JSON.stringify(areas)
-);
-
-
-alert(
-    "Delivery areas saved successfully!"
-);
- 
-
-}
-
-/* =========================================================
-LOAD SAVED AREAS
-========================================================= */
-
-function loadSavedAreas() {
-
- 
-const stored =
-    localStorage.getItem(
-        "fruitDeliveryAreas"
-    );
-
-
-if (!stored) {
-
-    return;
-
-}
-
-
-try {
-
-    const areas =
-        JSON.parse(stored);
-
-
-    areas.forEach(
-        function (area) {
-
-            const coordinates =
-                area.map(
-                    function (point) {
-
-                        return [
-                            point.lat,
-                            point.lng
-                        ];
-
-                    }
-                );
-
-
-            const polygon =
-                L.polygon(
-                    coordinates,
-                    {
-
-                        color:
-                            "#22c55e",
+                        color: "#22c55e",
 
                         fillColor:
                             "#22c55e",
@@ -485,46 +160,360 @@ try {
                             0.25
 
                     }
-                );
+
+                },
+
+                polyline: false,
+
+                rectangle: false,
+
+                circle: false,
+
+                circlemarker: false,
+
+                marker: false
+
+            }
+
+        });
 
 
-            drawnItems.addLayer(
-                polygon
+    map.addControl(drawControl);
+
+
+    /* =====================================================
+       POLYGON CREATED
+       ===================================================== */
+
+    map.on(
+        L.Draw.Event.CREATED,
+        function (event) {
+
+            const layer =
+                event.layer;
+
+            drawnItems.addLayer(layer);
+
+            console.log(
+                "Delivery area created."
             );
 
         }
     );
 
 
-} catch (error) {
+    /* =====================================================
+       POLYGON EDITED
+       ===================================================== */
 
-    console.error(
-        "Unable to load saved areas.",
-        error
+    map.on(
+        L.Draw.Event.EDITED,
+        function () {
+
+            console.log(
+                "Delivery areas edited."
+            );
+
+        }
+    );
+
+
+    /* =====================================================
+       POLYGON DELETED
+       ===================================================== */
+
+    map.on(
+        L.Draw.Event.DELETED,
+        function () {
+
+            console.log(
+                "Delivery areas deleted."
+            );
+
+        }
+    );
+
+
+    /* =====================================================
+       LOAD EXISTING AREAS
+       ===================================================== */
+
+    loadSavedAreas();
+
+}
+
+
+/* =========================================================
+   LOAD DELIVERY AREAS FROM JSON
+   ========================================================= */
+
+async function loadSavedAreas() {
+
+    try {
+
+        const response =
+            await fetch(
+                DELIVERY_AREAS_FILE,
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load delivery areas."
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !data ||
+            !Array.isArray(data.areas)
+        ) {
+
+            console.error(
+                "Invalid delivery area JSON."
+            );
+
+            return;
+
+        }
+
+
+        /* -------------------------------------------------
+           ADD EACH AREA TO MAP
+           ------------------------------------------------- */
+
+        data.areas.forEach(
+            function (area) {
+
+                if (
+                    !Array.isArray(area) ||
+                    area.length < 3
+                ) {
+
+                    return;
+
+                }
+
+
+                const coordinates =
+                    area.map(
+                        function (point) {
+
+                            return [
+                                point.lat,
+                                point.lng
+                            ];
+
+                        }
+                    );
+
+
+                const polygon =
+                    L.polygon(
+                        coordinates,
+                        {
+
+                            color:
+                                "#22c55e",
+
+                            fillColor:
+                                "#22c55e",
+
+                            fillOpacity:
+                                0.25
+
+                        }
+                    );
+
+
+                drawnItems.addLayer(
+                    polygon
+                );
+
+            }
+        );
+
+
+        console.log(
+            "Delivery areas loaded:",
+            data.areas.length
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Unable to load delivery areas:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE / EXPORT DELIVERY AREAS
+   ========================================================= */
+
+function saveAreas() {
+
+    const areas = [];
+
+
+    /* -----------------------------------------------------
+       READ ALL POLYGONS FROM MAP
+       ----------------------------------------------------- */
+
+    drawnItems.eachLayer(
+        function (layer) {
+
+            if (
+                layer instanceof L.Polygon
+            ) {
+
+                const latLngs =
+                    layer.getLatLngs();
+
+
+                if (
+                    !latLngs ||
+                    !latLngs.length
+                ) {
+
+                    return;
+
+                }
+
+
+                const points =
+                    latLngs[0].map(
+                        function (point) {
+
+                            return {
+
+                                lat: point.lat,
+
+                                lng: point.lng
+
+                            };
+
+                        }
+                    );
+
+
+                areas.push(points);
+
+            }
+
+        }
+    );
+
+
+    /* -----------------------------------------------------
+       CREATE JSON
+       ----------------------------------------------------- */
+
+    const data = {
+
+        areas: areas
+
+    };
+
+
+    const json =
+        JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+
+    /* -----------------------------------------------------
+       CREATE DOWNLOAD FILE
+       ----------------------------------------------------- */
+
+    const blob =
+        new Blob(
+            [json],
+            {
+                type:
+                    "application/json"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement("a");
+
+
+    link.href = url;
+
+    link.download =
+        "delivery-areas.json";
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+
+    document.body.removeChild(
+        link
+    );
+
+
+    URL.revokeObjectURL(
+        url
+    );
+
+
+    /* -----------------------------------------------------
+       SUCCESS MESSAGE
+       ----------------------------------------------------- */
+
+    alert(
+        "Delivery areas exported successfully!\n\n" +
+        "Now replace data/delivery-areas.json in your " +
+        "GitHub repository with the downloaded file."
+    );
+
+
+    console.log(
+        "Exported delivery areas:",
+        areas
     );
 
 }
- 
 
-}
 
 /* =========================================================
-CLEAR ALL
-========================================================= */
+   CLEAR ALL DELIVERY AREAS
+   ========================================================= */
 
-const clearButton =
-document.getElementById(
-"clearButton"
-);
+function clearAllAreas() {
 
-clearButton.addEventListener(
-"click",
-function () {
-
- 
     const confirmed =
         confirm(
-            "Are you sure you want to delete all delivery areas?"
+            "Are you sure you want to remove all delivery areas?"
         );
 
 
@@ -538,16 +527,15 @@ function () {
     drawnItems.clearLayers();
 
 
-    localStorage.removeItem(
-        "fruitDeliveryAreas"
+    alert(
+        "All delivery areas have been cleared.\n\n" +
+        "Click Save Areas to download an empty " +
+        "delivery-areas.json file."
     );
 
 
-    alert(
-        "All delivery areas have been cleared."
+    console.log(
+        "All delivery areas cleared."
     );
 
 }
- 
-
-);
