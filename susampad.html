@@ -333,6 +333,7 @@
     .blob:nth-of-type(3){font-size:70px !important;top:6% !important;right:-6% !important;}
     .contact-inner{flex-direction:column;align-items:flex-start;text-align:left;}
     .job-detail-grid{grid-template-columns:1fr 1fr;}
+    .pricing,.combos,.careers{width:calc(100% - 16px);border-radius:var(--radius-md);}
   }
 
   @media (max-width:420px){
@@ -474,7 +475,10 @@
   }
 
   /* ---------- pricing ---------- */
-  .pricing{background:linear-gradient(180deg,var(--green-pale-2),var(--green-pale));}
+  .pricing{
+    background:linear-gradient(180deg,var(--green-pale-2),var(--green-pale));
+    width:calc(100% - 32px);margin:22px auto;border-radius:var(--radius-lg);overflow:hidden;
+  }
   .price-grid{
     display:grid;grid-template-columns:repeat(4,1fr);gap:22px;
   }
@@ -500,6 +504,21 @@
     box-shadow:0 4px 10px rgba(0,0,0,.15);
   }
   .price-card .cat{font-size:26px;margin-bottom:10px;}
+
+  /* ---------- big real photo bowl ---------- */
+  .plan-bowl{display:flex;justify-content:center;margin-bottom:18px;}
+  .bowl-photo{
+    width:150px;height:150px;border-radius:50%;
+    object-fit:cover;display:block;
+    border:5px solid #fff;
+    box-shadow:0 20px 36px -12px rgba(14,47,28,.42);
+    transition:transform .4s cubic-bezier(.2,.8,.2,1);
+  }
+  .price-card:hover .bowl-photo, .combo-card:hover .bowl-photo{transform:scale(1.07) rotate(-2deg);}
+  .price-card.highlight .bowl-photo{border-color:#163521;}
+  .combo-card .plan-bowl{margin-bottom:12px;}
+  .combo-card .bowl-photo{width:104px;height:104px;border-width:4px;}
+
   .price-card h3{font-size:19px;line-height:1.25;min-height:48px;}
   .price-card .price{
     font-family:'Fredoka',sans-serif;font-size:32px;font-weight:700;
@@ -585,7 +604,10 @@
   @media (max-width:860px){.addon-grid{grid-template-columns:1fr;}}
 
   /* ---------- combos ---------- */
-  .combos{background:linear-gradient(180deg,var(--green-pale),var(--green-pale-2));}
+  .combos{
+    background:linear-gradient(180deg,var(--green-pale),var(--green-pale-2));
+    width:calc(100% - 32px);margin:22px auto;border-radius:var(--radius-lg);overflow:hidden;
+  }
   .combo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
   .combo-card{
     background:var(--cream-card);border-radius:var(--radius-md);
@@ -647,7 +669,10 @@
   .step-card h5{font-size:14.5px;color:var(--green-deep);margin-bottom:10px;font-family:'Fredoka',sans-serif;font-weight:600;}
 
   /* ---------- careers ---------- */
-  .careers{background:var(--green-deep);color:#fff;}
+  .careers{
+    background:var(--green-deep);color:#fff;
+    width:calc(100% - 32px);margin:22px auto;border-radius:var(--radius-lg);overflow:hidden;
+  }
   .careers .section-head h2, .careers .kicker{color:#fff;}
   .careers .section-head p{color:rgba(255,255,255,.75);}
   .job-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;}
@@ -913,7 +938,9 @@
     </div>
     <div class="price-grid reveal-stagger">
       <div class="price-card">
-        <div class="cat">🍓</div>
+        <div class="plan-bowl">
+          <img class="bowl-photo" src="https://images.pexels.com/photos/8119715/pexels-photo-8119715.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Bowl of freshly cut fruits">
+        </div>
         <h3>Fruit Bowl</h3>
         <span class="price">₹2,499</span>
         <span class="per">/ month</span>
@@ -926,7 +953,9 @@
       </div>
       <div class="price-card">
         <div class="price-tag">Optional Egg</div>
-        <div class="cat">🍓🥚</div>
+        <div class="plan-bowl">
+          <img class="bowl-photo" src="https://images.pexels.com/photos/30731386/pexels-photo-30731386.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Bowl of fresh cut fruit with strawberries, watermelon and pineapple">
+        </div>
         <h3>Fruit Bowl + Desi Egg</h3>
         <span class="price">₹2,599</span>
         <span class="per">/ month · boiled desi egg (4 days/week)</span>
@@ -938,7 +967,9 @@
         <span class="delivery-note">Free delivery included</span>
       </div>
       <div class="price-card highlight">
-        <div class="cat">💪</div>
+        <div class="plan-bowl">
+          <img class="bowl-photo" src="https://images.pexels.com/photos/23285946/pexels-photo-23285946.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Bowl of protein-rich chickpea salad">
+        </div>
         <h3>Protein Bowl Veg (with Protein Bar)</h3>
         <span class="price">₹2,699</span>
         <span class="per">/ month · high protein, keeps you full</span>
@@ -951,7 +982,9 @@
       </div>
       <div class="price-card">
         <div class="price-tag">Optional Egg</div>
-        <div class="cat">💪🥚</div>
+        <div class="plan-bowl">
+          <img class="bowl-photo" src="https://images.pexels.com/photos/23285946/pexels-photo-23285946.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Bowl of protein-rich chickpea salad">
+        </div>
         <h3>Protein Bowl + Desi Egg</h3>
         <span class="price">₹2,699</span>
         <span class="per">/ month · boiled desi egg (4 days/week)</span>
@@ -966,27 +999,73 @@
   </div>
 </section>
 
-<!-- ================= OFFERS ================= -->
-<section class="section-pad" id="offers">
+<!-- ================= COMBOS ================= -->
+<section class="combos section-pad">
   <div class="wrap">
     <div class="section-head reveal">
-      <div class="kicker">Monsoon Special Offers</div>
-      <h2>Subscribe longer, save more</h2>
-      <p>Offers applicable on Fruit Bowl &amp; Protein Bowl plans only.</p>
+      <div class="kicker">Combo &amp; Extra Plans</div>
+      <h2>More than a bowl — complete routines</h2>
     </div>
-    <div class="offers-grid reveal">
-      <div class="save-list">
-        <div class="save-row"><span class="save-amt">Save ₹500</span><span class="save-plan">2 Months Plan</span></div>
-        <div class="save-row"><span class="save-amt">Save ₹900</span><span class="save-plan">3 Months Plan</span></div>
-        <div class="save-row"><span class="save-amt">Save ₹1,200</span><span class="save-plan">4 Months Plan</span></div>
+    <div class="combo-grid reveal-stagger">
+      <div class="combo-card">
+        <div class="plan-bowl">
+          <img class="bowl-photo" src="https://images.pexels.com/photos/23285946/pexels-photo-23285946.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Protein salad bowl">
+        </div>
+        <h4>Protein Combo</h4>
+        <span class="tag">Protein Bowl + Juice</span>
+        <span class="price">₹3,899</span>
+        <span class="per">/ 26 days</span>
+        <ul>
+          <li>Complete meal + juice</li>
+          <li>Better nutrition</li>
+          <li>Saves delivery charges</li>
+        </ul>
       </div>
-      <div class="refer-card">
-        <h3>Refer a Friend</h3>
-        <div class="big">₹200 OFF</div>
-        <p>On each subscription referral — no maximum limit.</p>
+      <div class="combo-card">
+        <div class="plan-bowl">
+          <img class="bowl-photo" src="https://images.pexels.com/photos/1546896/pexels-photo-1546896.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fresh cut fruit bowl">
+        </div>
+        <h4>Fruit Combo</h4>
+        <span class="tag">Fruit Bowl + Juice</span>
+        <span class="price">₹3,699</span>
+        <span class="per">/ 26 days</span>
+        <ul>
+          <li>Fresh fruits + juice</li>
+          <li>Energy · hydration</li>
+          <li>Saves delivery charges</li>
+        </ul>
+      </div>
+      <div class="combo-card">
+        <div class="plan-bowl">
+          <img class="bowl-photo" src="https://images.pexels.com/photos/8215115/pexels-photo-8215115.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fresh fruit juice glasses">
+        </div>
+        <h4>Juice Plan</h4>
+        <span class="tag">Fresh · Natural · Pure</span>
+        <span class="price">₹1,499</span>
+        <span class="per">/ 26 days</span>
+        <ul>
+          <li>Fresh juice daily (350ml)</li>
+          <li>No sugar, no preservatives</li>
+          <li>Detox · hydration · energy</li>
+        </ul>
+      </div>
+      <div class="combo-card">
+        <div class="combo-new">NEW</div>
+        <div class="plan-bowl">
+          <img class="bowl-photo" src="https://images.pexels.com/photos/6133456/pexels-photo-6133456.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Warm breakfast bowl">
+        </div>
+        <h4>Ragi Java</h4>
+        <span class="tag">Traditional · Healthy · Filling</span>
+        <span class="price">₹1,399</span>
+        <span class="per">/ 26 days</span>
+        <ul>
+          <li>Plain Ragi Java &amp; Ragi Java + Curd</li>
+          <li>Rich in calcium &amp; fibre</li>
+          <li>Good for weight management</li>
+        </ul>
       </div>
     </div>
-    <p class="offer-note reveal">* Offers applicable on Fruit Bowl &amp; Protein Bowl plans only.</p>
+    <p class="offer-note reveal">Items are served on a rotational basis. Daily ingredients may vary according to freshness and seasonal availability.</p>
   </div>
 </section>
 
@@ -1017,65 +1096,27 @@
   </div>
 </section>
 
-<!-- ================= COMBOS ================= -->
-<section class="combos section-pad">
+<!-- ================= OFFERS ================= -->
+<section class="section-pad" id="offers">
   <div class="wrap">
     <div class="section-head reveal">
-      <div class="kicker">Combo &amp; Extra Plans</div>
-      <h2>More than a bowl — complete routines</h2>
+      <div class="kicker">Monsoon Special Offers</div>
+      <h2>Subscribe longer, save more</h2>
+      <p>Offers applicable on Fruit Bowl &amp; Protein Bowl plans only.</p>
     </div>
-    <div class="combo-grid reveal-stagger">
-      <div class="combo-card">
-        <div class="cat">💪🥤</div>
-        <h4>Protein Combo</h4>
-        <span class="tag">Protein Bowl + Juice</span>
-        <span class="price">₹3,899</span>
-        <span class="per">/ 26 days</span>
-        <ul>
-          <li>Complete meal + juice</li>
-          <li>Better nutrition</li>
-          <li>Saves delivery charges</li>
-        </ul>
+    <div class="offers-grid reveal">
+      <div class="save-list">
+        <div class="save-row"><span class="save-amt">Save ₹500</span><span class="save-plan">2 Months Plan</span></div>
+        <div class="save-row"><span class="save-amt">Save ₹900</span><span class="save-plan">3 Months Plan</span></div>
+        <div class="save-row"><span class="save-amt">Save ₹1,200</span><span class="save-plan">4 Months Plan</span></div>
       </div>
-      <div class="combo-card">
-        <div class="cat">🍓🥤</div>
-        <h4>Fruit Combo</h4>
-        <span class="tag">Fruit Bowl + Juice</span>
-        <span class="price">₹3,699</span>
-        <span class="per">/ 26 days</span>
-        <ul>
-          <li>Fresh fruits + juice</li>
-          <li>Energy · hydration</li>
-          <li>Saves delivery charges</li>
-        </ul>
-      </div>
-      <div class="combo-card">
-        <div class="cat">🧃</div>
-        <h4>Juice Plan</h4>
-        <span class="tag">Fresh · Natural · Pure</span>
-        <span class="price">₹1,499</span>
-        <span class="per">/ 26 days</span>
-        <ul>
-          <li>Fresh juice daily (350ml)</li>
-          <li>No sugar, no preservatives</li>
-          <li>Detox · hydration · energy</li>
-        </ul>
-      </div>
-      <div class="combo-card">
-        <div class="combo-new">NEW</div>
-        <div class="cat">🍵</div>
-        <h4>Ragi Java</h4>
-        <span class="tag">Traditional · Healthy · Filling</span>
-        <span class="price">₹1,399</span>
-        <span class="per">/ 26 days</span>
-        <ul>
-          <li>Plain Ragi Java &amp; Ragi Java + Curd</li>
-          <li>Rich in calcium &amp; fibre</li>
-          <li>Good for weight management</li>
-        </ul>
+      <div class="refer-card">
+        <h3>Refer a Friend</h3>
+        <div class="big">₹200 OFF</div>
+        <p>On each subscription referral — no maximum limit.</p>
       </div>
     </div>
-    <p class="offer-note reveal">Items are served on a rotational basis. Daily ingredients may vary according to freshness and seasonal availability.</p>
+    <p class="offer-note reveal">* Offers applicable on Fruit Bowl &amp; Protein Bowl plans only.</p>
   </div>
 </section>
 
