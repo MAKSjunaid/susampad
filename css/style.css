@@ -1,0 +1,819 @@
+* {
+  box-sizing: border-box;
+  }
+
+body {
+
+ 
+margin: 0;
+
+background: #f5f7fb;
+
+color: #172033;
+
+font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+ 
+
+}
+
+.page {
+
+ 
+min-height: 100vh;
+
+display: flex;
+
+flex-direction: column;
+ 
+
+}
+
+/* ==============================
+HEADER
+============================== */
+
+.header {
+
+ 
+background: white;
+
+padding: 22px 20px;
+
+text-align: center;
+
+border-bottom: 1px solid #e8ebf1;
+ 
+
+}
+
+.logo {
+
+ 
+font-size: 25px;
+
+font-weight: 800;
+ 
+
+}
+
+.tagline {
+
+ 
+margin-top: 5px;
+
+font-size: 13px;
+
+color: #7b8495;
+ 
+
+}
+
+/* ==============================
+MAIN
+============================== */
+
+.main {
+
+ 
+width: 100%;
+
+max-width: 850px;
+
+margin: 0 auto;
+
+padding: 35px 18px 50px;
+
+flex: 1;
+ 
+
+}
+
+/* ==============================
+HERO
+============================== */
+
+.hero {
+
+ 
+text-align: center;
+
+margin-bottom: 25px;
+ 
+
+}
+
+.hero h1 {
+
+ 
+margin: 0;
+
+font-size: 30px;
+
+font-weight: 800;
+ 
+
+}
+
+.hero p {
+
+ 
+margin: 10px auto 0;
+
+max-width: 550px;
+
+color: #737c8d;
+
+font-size: 15px;
+
+line-height: 1.5;
+ 
+
+}
+
+/* ==============================
+SEARCH
+============================== */
+
+.location-section {
+
+ 
+margin-bottom: 15px;
+ 
+
+}
+
+.search-container {
+
+ 
+display: flex;
+
+gap: 8px;
+ 
+
+}
+
+.search-container input {
+
+ 
+flex: 1;
+
+height: 48px;
+
+padding: 0 15px;
+
+border: 1px solid #dce1e9;
+
+border-radius: 10px;
+
+background: white;
+
+font-size: 15px;
+
+outline: none;
+ 
+
+}
+
+.search-container input:focus {
+
+ 
+border-color: #6b7280;
+ 
+
+}
+
+.search-container button {
+
+ 
+height: 48px;
+
+padding: 0 20px;
+
+border: none;
+
+border-radius: 10px;
+
+background: #172033;
+
+color: white;
+
+font-size: 14px;
+
+font-weight: 600;
+
+cursor: pointer;
+ 
+
+}
+
+.search-container button:hover {
+
+ 
+opacity: 0.9;
+ 
+
+}
+
+/* ==============================
+CURRENT LOCATION
+============================== */
+
+.location-button {
+
+ 
+margin-top: 10px;
+
+width: 100%;
+
+height: 44px;
+
+border: 1px solid #dce1e9;
+
+border-radius: 10px;
+
+background: white;
+
+color: #172033;
+
+cursor: pointer;
+
+font-size: 14px;
+ 
+
+}
+
+.location-button:hover {
+
+ 
+background: #f8f9fb;
+ 
+
+}
+
+/* ==============================
+MAP
+============================== */
+
+.map-section {
+
+ 
+background: white;
+
+border-radius: 14px;
+
+overflow: hidden;
+
+border: 1px solid #e3e7ee;
+ 
+
+}
+
+#map {
+
+ 
+width: 100%;
+
+height: 500px;
+ 
+
+}
+
+/* ==============================
+PROFESSIONAL FRUIT BOWL PIN
+============================== */
+
+.customer-pin {
+
+ 
+background: transparent;
+
+border: none;
+ 
+
+}
+
+.customer-pin-wrapper {
+
+ 
+width: 72px;
+
+height: 88px;
+
+display: flex;
+
+align-items: flex-start;
+
+justify-content: center;
+
+cursor: grab;
+
+touch-action: none;
+ 
+
+}
+
+.customer-pin-wrapper:active {
+
+ 
+cursor: grabbing;
+ 
+
+}
+
+/* ==============================
+GREEN MAP PIN
+============================== */
+
+.customer-pin-body {
+
+ 
+width: 68px;
+
+height: 68px;
+
+background: #22a447;
+
+border: 4px solid white;
+
+border-radius:
+    50%
+    50%
+    50%
+    0;
+
+transform:
+    rotate(-45deg);
+
+box-shadow:
+    0 4px 12px
+    rgba(0, 0, 0, 0.30);
+
+display: flex;
+
+align-items: center;
+
+justify-content: center;
+
+position: relative;
+ 
+
+}
+
+/* ==============================
+WHITE INNER CIRCLE
+============================== */
+
+.fruit-bowl-icon {
+
+ 
+width: 43px;
+
+height: 43px;
+
+background: white;
+
+border-radius: 50%;
+
+transform:
+    rotate(45deg);
+
+position: relative;
+
+box-shadow:
+    0 1px 4px
+    rgba(0, 0, 0, 0.15);
+ 
+
+}
+
+/* ==============================
+FRUIT
+============================== */
+
+.fruit {
+
+ 
+position: absolute;
+
+border-radius: 50%;
+
+z-index: 2;
+ 
+
+}
+
+/* RED FRUIT */
+
+.fruit-red {
+
+ 
+width: 12px;
+
+height: 12px;
+
+background: #ef4444;
+
+left: 10px;
+
+top: 10px;
+ 
+
+}
+
+/* ORANGE FRUIT */
+
+.fruit-orange {
+
+ 
+width: 11px;
+
+height: 11px;
+
+background: #f97316;
+
+left: 20px;
+
+top: 8px;
+ 
+
+}
+
+/* YELLOW FRUIT */
+
+.fruit-yellow {
+
+ 
+width: 10px;
+
+height: 10px;
+
+background: #facc15;
+
+left: 25px;
+
+top: 18px;
+ 
+
+}
+
+/* GREEN FRUIT */
+
+.fruit-green {
+
+ 
+width: 10px;
+
+height: 10px;
+
+background: #22c55e;
+
+left: 13px;
+
+top: 20px;
+ 
+
+}
+
+/* ==============================
+FRUIT BOWL
+============================== */
+
+.bowl {
+
+ 
+position: absolute;
+
+width: 29px;
+
+height: 12px;
+
+background: #22a447;
+
+border-radius:
+    0 0 18px 18px;
+
+left: 7px;
+
+top: 26px;
+
+z-index: 3;
+ 
+
+}
+
+/* ==============================
+BOWL UPPER RIM
+============================== */
+
+.bowl::before {
+
+ 
+content: "";
+
+position: absolute;
+
+width: 31px;
+
+height: 5px;
+
+background: #168238;
+
+border-radius: 8px;
+
+left: -1px;
+
+top: -2px;
+ 
+
+}
+
+/* ==============================
+SMALL LEAF
+============================== */
+
+.bowl::after {
+
+ 
+content: "";
+
+position: absolute;
+
+width: 7px;
+
+height: 12px;
+
+background: #16a34a;
+
+border-radius:
+    100% 0 100% 0;
+
+transform:
+    rotate(-35deg);
+
+left: 17px;
+
+top: -10px;
+ 
+
+}
+
+/* ==============================
+RESULT
+============================== */
+
+.result {
+
+ 
+margin-top: 18px;
+
+padding: 18px;
+
+border-radius: 12px;
+
+display: flex;
+
+align-items: center;
+
+gap: 14px;
+ 
+
+}
+
+.result-icon {
+
+ 
+width: 45px;
+
+height: 45px;
+
+border-radius: 50%;
+
+display: flex;
+
+align-items: center;
+
+justify-content: center;
+
+font-size: 22px;
+
+font-weight: 800;
+ 
+
+}
+
+.result h2 {
+
+ 
+margin: 0;
+
+font-size: 18px;
+ 
+
+}
+
+.result p {
+
+ 
+margin: 5px 0 0;
+
+font-size: 13px;
+ 
+
+}
+
+/* AVAILABLE */
+
+.result.available {
+
+ 
+background: #ecfdf3;
+
+border: 1px solid #b7ebcd;
+ 
+
+}
+
+.result.available .result-icon {
+
+ 
+background: #22c55e;
+
+color: white;
+ 
+
+}
+
+.result.available h2 {
+
+ 
+color: #15803d;
+ 
+
+}
+
+/* NOT AVAILABLE */
+
+.result.unavailable {
+
+ 
+background: #fff1f2;
+
+border: 1px solid #fecdd3;
+ 
+
+}
+
+.result.unavailable .result-icon {
+
+ 
+background: #ef4444;
+
+color: white;
+ 
+
+}
+
+.result.unavailable h2 {
+
+ 
+color: #dc2626;
+ 
+
+}
+
+/* ==============================
+HIDDEN
+============================== */
+
+.hidden {
+
+ 
+display: none;
+ 
+
+}
+
+/* ==============================
+HINT
+============================== */
+
+.map-hint {
+
+ 
+text-align: center;
+
+color: #8a93a3;
+
+font-size: 12px;
+
+margin-top: 12px;
+ 
+
+}
+
+/* ==============================
+FOOTER
+============================== */
+
+.footer {
+
+ 
+padding: 18px;
+
+background: white;
+
+border-top: 1px solid #e8ebf1;
+
+display: flex;
+
+justify-content: center;
+
+gap: 20px;
+
+font-size: 12px;
+
+color: #8992a3;
+ 
+
+}
+
+.footer a {
+
+ 
+color: #8992a3;
+
+text-decoration: none;
+ 
+
+}
+
+/* ==============================
+MOBILE
+============================== */
+
+@media (max-width: 600px) {
+
+ 
+.main {
+
+    padding: 25px 12px 35px;
+
+}
+
+
+.hero h1 {
+
+    font-size: 25px;
+
+}
+
+
+.hero p {
+
+    font-size: 14px;
+
+}
+
+
+.search-container {
+
+    flex-direction: column;
+
+}
+
+
+.search-container button {
+
+    width: 100%;
+
+}
+
+
+#map {
+
+    height: 430px;
+
+}
+
+
+/* ==============================
+   LARGE MOBILE PIN
+   ============================== */
+
+.customer-pin-wrapper {
+
+    width: 78px;
+
+    height: 94px;
+
+}
+ 
+
+}
+
+ 
+ 
