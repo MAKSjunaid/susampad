@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+ 
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Admin - Delivery Areas</title>
+
+
+<!-- Leaflet CSS -->
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+>
+
+
+<!-- Leaflet Draw CSS -->
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"
+>
+
+
+<link
+    rel="stylesheet"
+    href="css/admin.css"
+>
+ 
+
+</head>
+
+<body>
+
+<div id="loginScreen" class="login-screen">
+
+ 
+<div class="login-box">
+
+
+    <h1>
+        Admin Login
+    </h1>
+
+
+    <p>
+        Manage your delivery areas
+    </p>
+
+
+    <input
+        type="text"
+        id="username"
+        placeholder="Username"
+    >
+
+
+    <input
+        type="password"
+        id="password"
+        placeholder="Password"
+    >
+
+
+    <button id="loginButton">
+        Login
+    </button>
+
+
+    <div
+        id="loginError"
+        class="login-error"
+    ></div>
+
+
+    <a href="index.html">
+        ← Back to website
+    </a>
+
+
+</div>
+ 
+
+</div>
+
+<div
+    id="adminScreen"
+    class="admin-screen hidden"
+>
+
+ 
+<header class="admin-header">
+
+
+    <div>
+
+        <h1>
+            Delivery Area Admin
+        </h1>
+
+        <p>
+            Draw the areas where you deliver.
+        </p>
+
+    </div>
+
+
+    <button
+        id="logoutButton"
+        class="logout-button"
+    >
+        Logout
+    </button>
+
+
+</header>
+
+
+<div class="toolbar">
+
+
+    <button id="saveButton">
+        💾 Save Areas
+    </button>
+
+
+    <button id="clearButton">
+        🗑 Clear All
+    </button>
+
+
+    <a href="index.html">
+        Customer Website
+    </a>
+
+
+</div>
+
+
+<div id="adminMap"></div>
+
+
+<div class="instructions">
+
+
+    <h3>
+        How to use
+    </h3>
+
+
+    <ol>
+
+        <li>
+            Click the polygon icon on the map.
+        </li>
+
+        <li>
+            Click around your delivery area.
+        </li>
+
+        <li>
+            Complete the polygon.
+        </li>
+
+        <li>
+            You can create multiple areas.
+        </li>
+
+        <li>
+            Click "Save Areas".
+        </li>
+
+    </ol>
+
+
+    <p>
+        The customer website will immediately use
+        these saved areas.
+    </p>
+
+
+</div>
+ 
+
+</div>
+
+<!-- Leaflet -->
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+></script>
+
+<!-- Leaflet Draw -->
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"
+></script>
+
+<script src="js/admin.js"></script>
+
+</body>
+
+</html>
