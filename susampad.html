@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Susampad — Healthy Food, Happy Life</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green-deep:#0e2f1c;
+    --green-forest:#1c4d2a;
+    --green-mid:#2f7a34;
+    --green-bright:#63b23f;
+    --green-lime:#94d454;
+    --green-pale:#dcedd0;
+    --green-pale-2:#eaf5e0;
+    --cream:#f4f9ec;
+    --cream-card:#ffffff;
+    --mango:#efa421;
+    --mango-deep:#c9820f;
+    --watermelon:#df4a3f;
+    --ink:#182a19;
+    --ink-soft:#44583f;
+    --line:#d7e8c8;
+    --radius-lg:32px;
+    --radius-md:22px;
+    --radius-sm:16px;
+    --shadow:0 14px 34px -14px rgba(14,47,28,0.32);
+  }
+
+  /* scroll progress bar */
+  .scroll-progress{
+    position:fixed;top:0;left:0;height:4px;width:0%;z-index:300;
+    background:linear-gradient(90deg,var(--green-bright),var(--green-lime),var(--mango));
+    box-shadow:0 0 12px rgba(99,178,63,.6);
+    transition:width .1s linear;
+  }
+
+  /* falling leaves layer */
+  .leaf-layer{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden;}
+  .leaf{
+    position:absolute;top:-40px;font-size:20px;opacity:.55;
+    animation:leaf-fall linear infinite;
+    will-change:transform;
+  }
+  @keyframes leaf-fall{
+    0%{transform:translateY(-5vh) translateX(0) rotate(0deg);opacity:0;}
+    8%{opacity:.6;}
+    92%{opacity:.5;}
+    100%{transform:translateY(105vh) translateX(40px) rotate(340deg);opacity:0;}
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;width:100%;}
+  body{
+    margin:0;
+    font-family:'Work Sans',sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    width:100%;
+    max-width:100vw;
+  }
+  h1,h2,h3,h4{
+    font-family:'Fredoka',sans-serif;
+    margin:0;
+    color:var(--green-deep);
+    font-weight:600;
+  }
+  p{margin:0;line-height:1.6;color:var(--ink-soft);}
+  a{text-decoration:none;color:inherit;}
+  ul{margin:0;padding:0;list-style:none;}
+  img{max-width:100%;display:block;}
+  section{position:relative;}
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 28px;
+  }
+
+  /* ---------- reveal on scroll ---------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(34px);
+    transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);
+  }
+  .reveal.in{opacity:1;transform:translateY(0);}
+  .reveal-stagger > *{
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);
+  }
+  .reveal-stagger.in > *{opacity:1;transform:translateY(0);}
+  .reveal-stagger.in > *:nth-child(1){transition-delay:.02s}
+  .reveal-stagger.in > *:nth-child(2){transition-delay:.10s}
+  .reveal-stagger.in > *:nth-child(3){transition-delay:.18s}
+  .reveal-stagger.in > *:nth-child(4){transition-delay:.26s}
+  .reveal-stagger.in > *:nth-child(5){transition-delay:.34s}
+  .reveal-stagger.in > *:nth-child(6){transition-delay:.42s}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+    .reveal,.reveal-stagger>*{opacity:1;transform:none;}
+  }
+
+  /* ---------- nav ---------- */
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:200;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 32px;
+    transition:padding .35s ease, background .35s ease, box-shadow .35s ease;
+  }
+  .nav.scrolled{
+    padding:12px 32px;
+    background:rgba(251,246,234,0.92);
+    backdrop-filter:blur(10px);
+    box-shadow:0 6px 20px -12px rgba(18,56,34,.35);
+  }
+  .nav-brand{display:flex;align-items:center;gap:10px;}
+  .nav-leaf{
+    width:34px;height:34px;border-radius:50%;
+    background:var(--green-mid);
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;
+    box-shadow:0 4px 10px -3px rgba(18,56,34,.5);
+    animation:sway 4.5s ease-in-out infinite;
+  }
+  @keyframes sway{
+    0%,100%{transform:rotate(-6deg);}
+    50%{transform:rotate(6deg);}
+  }
+  .nav-brand span{font-family:'Fredoka',sans-serif;font-size:22px;font-weight:700;color:var(--green-deep);}
+  .nav-links{display:flex;gap:30px;align-items:center;}
+  .nav-links a{
+    font-size:14.5px;font-weight:500;color:var(--ink);
+    position:relative;padding-bottom:4px;
+  }
+  .nav-links a::after{
+    content:"";position:absolute;left:0;bottom:0;height:2px;width:0;
+    background:var(--mango);transition:width .3s ease;
+  }
+  .nav-links a:hover::after{width:100%;}
+  .nav-cta{
+    background:var(--watermelon);color:#fff;
+    padding:10px 20px;border-radius:999px;font-weight:600;font-size:14px;
+    box-shadow:0 8px 18px -8px rgba(223,74,63,.65);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .nav-cta:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 12px 22px -8px rgba(223,74,63,.75);}
+  .nav-toggle{
+    display:none;font-size:26px;color:var(--green-deep);cursor:pointer;
+    background:none;border:none;position:relative;z-index:260;line-height:1;
+  }
+  .nav-overlay{
+    position:fixed;inset:0;background:rgba(14,47,28,.4);
+    opacity:0;pointer-events:none;transition:opacity .35s ease;z-index:190;
+  }
+  .nav-overlay.open{opacity:1;pointer-events:auto;}
+
+  @media (max-width:860px){
+    .nav-links{
+      position:fixed;top:0;right:0;left:auto;height:100vh;width:min(78vw,320px);
+      background:var(--cream-card);flex-direction:column;
+      justify-content:flex-start;align-items:flex-start;
+      padding:96px 30px 40px;
+      gap:24px;transform:translateX(100%);transition:transform .4s cubic-bezier(.2,.8,.2,1);
+      box-shadow:-14px 0 40px -18px rgba(0,0,0,.3);
+      z-index:210;
+    }
+    .nav-links.open{transform:translateX(0);}
+    .nav-links a{font-size:17.5px;width:100%;}
+    .nav-toggle{display:block;}
+    .nav-cta{display:none;}
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    min-height:100vh;
+    display:flex;align-items:center;
+    padding:130px 0 80px;
+    background:
+      radial-gradient(ellipse at 15% 20%, rgba(99,178,63,.28), transparent 55%),
+      radial-gradient(ellipse at 85% 15%, rgba(148,212,84,.22), transparent 50%),
+      radial-gradient(ellipse at 85% 85%, rgba(239,164,33,.16), transparent 50%),
+      var(--cream);
+    overflow:hidden;
+  }
+  .hero-grid{
+    display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;
+    position:relative;z-index:2;
+  }
+  .hero-eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--green-pale);color:var(--green-mid);
+    padding:8px 16px;border-radius:999px;font-size:13.5px;font-weight:600;
+    margin-bottom:22px;
+    animation:pop-in .7s ease .2s both;
+  }
+  @keyframes pop-in{
+    0%{opacity:0;transform:translateY(-10px) scale(.9);}
+    100%{opacity:1;transform:translateY(0) scale(1);}
+  }
+  .hero h1{
+    font-size:clamp(2.6rem,5.2vw,4.1rem);
+    line-height:1.05;
+    letter-spacing:-.01em;
+  }
+  .hero h1 .line{display:block;overflow:hidden;}
+  .hero h1 .line span{
+    display:block;transform:translateY(110%);
+    animation:line-up .9s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  .hero h1 .line:nth-child(1) span{animation-delay:.15s;color:var(--green-deep);}
+  .hero h1 .line:nth-child(2) span{animation-delay:.30s;color:var(--green-mid);}
+  .hero h1 .line:nth-child(3) span{animation-delay:.45s;color:var(--watermelon);}
+  @keyframes line-up{to{transform:translateY(0);}}
+
+  .hero p.lead{
+    margin-top:22px;max-width:480px;font-size:17px;
+    animation:fade-up .8s ease .7s both;
+  }
+  @keyframes fade-up{
+    0%{opacity:0;transform:translateY(16px);}
+    100%{opacity:1;transform:translateY(0);}
+  }
+  .fruit-tags{
+    display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;
+    animation:fade-up .8s ease .78s both;
+  }
+  .fruit-tag{
+    background:color-mix(in srgb, var(--tag) 14%, white);
+    color:var(--tag);
+    border:1.5px solid color-mix(in srgb, var(--tag) 35%, white);
+    padding:8px 16px;border-radius:999px;font-size:13px;font-weight:600;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .fruit-tag:hover{
+    transform:translateY(-4px) scale(1.06);
+    box-shadow:0 10px 18px -8px color-mix(in srgb, var(--tag) 55%, transparent);
+  }
+
+  .hero-actions{
+    display:flex;gap:16px;margin-top:32px;flex-wrap:wrap;
+    animation:fade-up .8s ease .85s both;
+  }
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:15px 26px;border-radius:999px;font-weight:600;font-size:15px;
+    transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+    cursor:pointer;border:none;
+  }
+  .btn-primary{
+    background:var(--green-mid);color:#fff;
+    box-shadow:0 12px 24px -10px rgba(61,122,53,.6);
+  }
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 16px 30px -10px rgba(61,122,53,.7);}
+  .btn-ghost{
+    background:transparent;color:var(--green-deep);
+    border:2px solid var(--green-deep);
+  }
+  .btn-ghost:hover{background:var(--green-deep);color:#fff;transform:translateY(-3px);}
+
+  .hero-stats{
+    display:flex;gap:30px;margin-top:44px;
+    animation:fade-up .8s ease 1s both;
+  }
+  .hero-stats div{display:flex;flex-direction:column;}
+  .hero-stats .num{font-family:'Fredoka',sans-serif;font-size:28px;font-weight:700;color:var(--green-deep);}
+  .hero-stats .lbl{font-size:12.5px;color:var(--ink-soft);}
+
+  .hero-visual{position:relative;height:460px;}
+  .bowl-core{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, #fff, #f2ead6 70%);
+    box-shadow:0 30px 60px -20px rgba(18,56,34,.45), inset 0 -14px 30px rgba(0,0,0,.06);
+    display:flex;align-items:center;justify-content:center;
+    font-size:64px;
+    animation:breathe 5s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%,100%{transform:translate(-50%,-50%) scale(1);}
+    50%{transform:translate(-50%,-50%) scale(1.045);}
+  }
+  .orbit{
+    position:absolute;top:50%;left:50%;
+    width:1px;height:1px;
+  }
+  .orbit span{
+    position:absolute;font-size:34px;
+    filter:drop-shadow(0 8px 10px rgba(0,0,0,.15));
+    animation:orbit-spin linear infinite;
+    transform-origin:0 0;
+  }
+  @keyframes orbit-spin{
+    from{transform:rotate(0deg) translateX(var(--r)) rotate(0deg);}
+    to{transform:rotate(360deg) translateX(var(--r)) rotate(-360deg);}
+  }
+  .blob{
+    position:absolute;
+    line-height:1;
+    filter:drop-shadow(0 24px 34px rgba(14,47,28,.28));
+    animation:float-blob 8s ease-in-out infinite;
+    pointer-events:none;user-select:none;
+    z-index:1;
+  }
+  @keyframes float-blob{
+    0%,100%{transform:translateY(0) translateX(0);}
+    50%{transform:translateY(-22px) translateX(14px);}
+  }
+
+  @media (max-width:960px){
+    .hero-grid{grid-template-columns:1fr;}
+    .hero-visual{height:280px;}
+    .bowl-core{width:160px;height:160px;font-size:44px;}
+  }
+
+  @media (max-width:700px){
+    .nav{padding:16px 18px;}
+    .nav.scrolled{padding:10px 18px;}
+    .nav-brand span{font-size:19px;}
+    .wrap{padding:0 18px;}
+    .hero{min-height:auto;padding:88px 0 50px;}
+    .hero-actions .btn{padding:13px 20px;font-size:14px;}
+    .hero-stats{gap:20px;flex-wrap:wrap;}
+    .section-pad{padding:64px 0;}
+    .blob{opacity:.55;}
+    .blob:nth-of-type(1){font-size:110px !important;top:-2% !important;left:-8% !important;}
+    .blob:nth-of-type(2){font-size:90px !important;bottom:2% !important;left:-6% !important;}
+    .blob:nth-of-type(3){font-size:70px !important;top:6% !important;right:-6% !important;}
+    .contact-inner{flex-direction:column;align-items:flex-start;text-align:left;}
+    .job-detail-grid{grid-template-columns:1fr 1fr;}
+  }
+
+  @media (max-width:420px){
+    .job-detail-grid{grid-template-columns:1fr;}
+    .hero h1{font-size:2.1rem;}
+  }
+
+  /* ---------- wave divider ---------- */
+  .wave{display:block;width:100%;height:auto;margin-bottom:-1px;}
+
+  /* ---------- marquee trust strip ---------- */
+  .marquee-wrap{
+    background:var(--green-deep);
+    padding:16px 0;overflow:hidden;
+    white-space:nowrap;
+  }
+  .marquee-track{
+    display:inline-flex;gap:60px;
+    animation:marquee 26s linear infinite;
+  }
+  .marquee-wrap:hover .marquee-track{animation-play-state:paused;}
+  @keyframes marquee{
+    from{transform:translateX(0);}
+    to{transform:translateX(-50%);}
+  }
+  .marquee-item{
+    color:#fff;font-size:14.5px;font-weight:500;
+    display:inline-flex;align-items:center;gap:10px;opacity:.92;
+  }
+  .marquee-item b{color:var(--mango);font-family:'Fredoka',sans-serif;font-weight:700;}
+
+  /* ---------- section heads ---------- */
+  .section-pad{padding:100px 0;}
+  .kicker{
+    display:inline-flex;align-items:center;gap:8px;
+    color:var(--green-mid);font-weight:600;font-size:14px;margin-bottom:10px;
+  }
+  .kicker::before{content:"🌿";font-size:14px;}
+  .section-head{max-width:620px;margin-bottom:52px;}
+  .section-head h2{font-size:clamp(1.9rem,3.4vw,2.6rem);line-height:1.15;}
+  .section-head p{margin-top:14px;font-size:16px;}
+
+  /* ---------- delivery check ---------- */
+  .delivery-check{padding:70px 0;}
+  .delivery-card{
+    display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap;
+    background:linear-gradient(135deg,var(--green-deep),var(--green-forest) 55%,var(--green-mid));
+    border-radius:var(--radius-lg);
+    padding:40px 44px;
+    position:relative;overflow:hidden;
+    box-shadow:0 26px 54px -20px rgba(14,47,28,.55);
+    transition:transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease;
+  }
+  .delivery-card:hover{
+    transform:translateY(-6px) scale(1.01);
+    box-shadow:0 34px 64px -18px rgba(14,47,28,.65);
+  }
+  .delivery-left{display:flex;align-items:center;gap:22px;position:relative;z-index:1;}
+  .delivery-pin{
+    position:relative;width:72px;height:72px;flex:none;
+    display:flex;align-items:center;justify-content:center;font-size:34px;
+  }
+  .delivery-pin .ring{
+    position:absolute;inset:0;border-radius:50%;
+    border:2px solid var(--green-lime);
+    animation:radar-ping 2.4s ease-out infinite;
+  }
+  .delivery-pin .ring:nth-child(2){animation-delay:.8s;}
+  .delivery-pin .ring:nth-child(3){animation-delay:1.6s;}
+  @keyframes radar-ping{
+    0%{transform:scale(.5);opacity:.8;}
+    100%{transform:scale(1.8);opacity:0;}
+  }
+  .delivery-pin .core{
+    position:relative;z-index:1;width:56px;height:56px;border-radius:50%;
+    background:var(--green-lime);display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 18px -6px rgba(0,0,0,.4);
+  }
+  .delivery-card h3{color:#fff;font-size:23px;margin-bottom:8px;}
+  .delivery-card p{color:rgba(255,255,255,.78);font-size:14.5px;max-width:420px;}
+  .delivery-cta{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--mango);color:#fff;font-weight:700;font-size:15px;
+    padding:15px 26px;border-radius:999px;white-space:nowrap;position:relative;z-index:1;
+    box-shadow:0 12px 24px -10px rgba(239,164,33,.6);
+    transition:transform .3s ease, background .3s ease, box-shadow .3s ease;
+  }
+  .delivery-cta .arrow{transition:transform .3s ease;}
+  .delivery-card:hover .delivery-cta{background:var(--mango-deep);}
+  .delivery-card:hover .delivery-cta .arrow{transform:translateX(6px);}
+  .delivery-card::after{
+    content:"🚚";position:absolute;right:-14px;bottom:-26px;font-size:130px;opacity:.1;
+    transform:rotate(-8deg);
+  }
+  @media (max-width:700px){
+    .delivery-card{padding:30px 26px;flex-direction:column;align-items:flex-start;text-align:left;}
+    .delivery-cta{width:100%;justify-content:center;}
+  }
+
+  /* ---------- features ---------- */
+  .features-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:22px;
+  }
+  .feature-card{
+    background:linear-gradient(160deg,var(--cream-card),var(--green-pale-2));
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    padding:28px 22px;
+    transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+  }
+  .feature-card:hover{
+    transform:translateY(-8px);
+    box-shadow:var(--shadow);
+    border-color:var(--green-bright);
+  }
+  .feature-icon{
+    width:52px;height:52px;border-radius:20px;
+    background:var(--green-pale);
+    display:flex;align-items:center;justify-content:center;
+    font-size:24px;margin-bottom:16px;
+    transition:transform .35s ease;
+  }
+  .feature-card:hover .feature-icon{transform:rotate(-8deg) scale(1.08);}
+  .feature-card h4{font-size:16.5px;margin-bottom:6px;}
+  .feature-card p{font-size:14px;}
+
+  @media (max-width:900px){.features-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:560px){.features-grid{grid-template-columns:1fr;}}
+
+  /* ---------- plan basics badges ---------- */
+  .basics-row{
+    display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin:-14px 0 54px;
+  }
+  .basic-pill{
+    background:#fff;border:1.5px dashed var(--green-bright);
+    padding:10px 20px;border-radius:999px;
+    font-size:14px;font-weight:600;color:var(--green-deep);
+    display:flex;align-items:center;gap:8px;
+  }
+
+  /* ---------- pricing ---------- */
+  .pricing{background:linear-gradient(180deg,var(--green-pale-2),var(--green-pale));}
+  .price-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:22px;
+  }
+  .price-card{
+    background:var(--cream-card);
+    border-radius:var(--radius-lg);
+    padding:30px 24px;
+    border:1px solid var(--line);
+    position:relative;overflow:hidden;
+    transition:transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease;
+  }
+  .price-card:hover{transform:translateY(-10px);box-shadow:0 24px 48px -18px rgba(18,56,34,.35);}
+  .price-card.highlight{
+    background:linear-gradient(160deg,var(--green-deep),#1a4a2c);
+    border-color:transparent;
+  }
+  .price-card.highlight *{color:#fff;}
+  .price-card.highlight p{color:rgba(255,255,255,.78);}
+  .price-tag{
+    position:absolute;top:18px;right:-38px;
+    background:var(--mango);color:#fff;font-size:11.5px;font-weight:700;
+    padding:5px 40px;transform:rotate(35deg);
+    box-shadow:0 4px 10px rgba(0,0,0,.15);
+  }
+  .price-card .cat{font-size:26px;margin-bottom:10px;}
+  .price-card h3{font-size:19px;line-height:1.25;min-height:48px;}
+  .price-card .price{
+    font-family:'Fredoka',sans-serif;font-size:32px;font-weight:700;
+    margin:14px 0 2px;color:var(--watermelon);
+  }
+  .price-card.highlight .price{color:var(--mango);}
+  .price-card .per{font-size:13px;color:var(--ink-soft);margin-bottom:16px;display:block;}
+  .price-card ul{margin-bottom:20px;}
+  .price-card li{
+    font-size:13.5px;display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;color:var(--ink-soft);
+  }
+  .price-card.highlight li{color:rgba(255,255,255,.85);}
+  .price-card li::before{content:"✓";color:var(--green-bright);font-weight:700;}
+  .price-card.highlight li::before{color:var(--mango);}
+  .delivery-note{
+    font-size:12px;font-weight:600;color:var(--green-mid);
+    background:var(--green-pale);display:inline-block;padding:6px 12px;border-radius:8px;
+  }
+  .price-card.highlight .delivery-note{background:rgba(255,255,255,.14);color:#fff;}
+
+  @media (max-width:980px){.price-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:560px){.price-grid{grid-template-columns:1fr;}}
+
+  /* ---------- offers ---------- */
+  .offers-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:22px;}
+  .save-list{display:flex;flex-direction:column;gap:14px;}
+  .save-row{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--cream-card);border:1px solid var(--line);
+    border-radius:var(--radius-md);padding:18px 24px;
+    transition:transform .3s ease, box-shadow .3s ease;
+  }
+  .save-row:hover{transform:translateX(6px);box-shadow:var(--shadow);}
+  .save-amt{
+    font-family:'Fredoka',sans-serif;font-size:22px;color:var(--watermelon);font-weight:700;
+  }
+  .save-plan{
+    background:var(--mango);color:#fff;font-size:13px;font-weight:700;
+    padding:6px 16px;border-radius:999px;
+    animation:pulse-badge 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-badge{
+    0%,100%{box-shadow:0 0 0 0 rgba(239,164,33,.45);}
+    50%{box-shadow:0 0 0 8px rgba(239,164,33,0);}
+  }
+  .refer-card{
+    background:linear-gradient(160deg,var(--watermelon),#b8342a);
+    border-radius:var(--radius-lg);padding:34px 28px;color:#fff;
+    display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;
+  }
+  .refer-card h3{color:#fff;font-size:22px;margin-bottom:10px;}
+  .refer-card .big{font-family:'Fredoka',sans-serif;font-size:40px;font-weight:700;margin:6px 0;}
+  .refer-card p{color:rgba(255,255,255,.85);font-size:14px;}
+  .refer-card::after{
+    content:"🤝";position:absolute;right:-10px;bottom:-20px;font-size:110px;opacity:.18;
+  }
+  .offer-note{font-size:13px;color:var(--ink-soft);margin-top:18px;font-style:italic;}
+
+  @media (max-width:860px){.offers-grid{grid-template-columns:1fr;}}
+
+  /* ---------- addons ---------- */
+  .addon-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .addon-card{
+    background:var(--cream-card);border:1px solid var(--line);border-radius:var(--radius-md);
+    padding:26px;text-align:center;
+    transition:transform .35s ease, box-shadow .35s ease;
+  }
+  .addon-card:hover{transform:translateY(-8px) rotate(-.6deg);box-shadow:var(--shadow);}
+  .egg-icon{font-size:40px;margin-bottom:12px;display:inline-block;animation:egg-wiggle 3.4s ease-in-out infinite;}
+  .addon-card:nth-child(2) .egg-icon{animation-delay:.3s;}
+  .addon-card:nth-child(3) .egg-icon{animation-delay:.6s;}
+  @keyframes egg-wiggle{
+    0%,100%{transform:rotate(0deg);}
+    20%{transform:rotate(-8deg);}
+    40%{transform:rotate(6deg);}
+    60%{transform:rotate(-4deg);}
+  }
+  .addon-card h4{font-size:15.5px;margin-bottom:12px;min-height:44px;}
+  .addon-price{
+    font-family:'Fredoka',sans-serif;color:var(--green-mid);font-size:22px;font-weight:700;
+  }
+
+  @media (max-width:860px){.addon-grid{grid-template-columns:1fr;}}
+
+  /* ---------- combos ---------- */
+  .combos{background:linear-gradient(180deg,var(--green-pale),var(--green-pale-2));}
+  .combo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+  .combo-card{
+    background:var(--cream-card);border-radius:var(--radius-md);
+    padding:26px 22px;border:1px solid var(--line);position:relative;
+    transition:transform .35s ease, box-shadow .35s ease;
+  }
+  .combo-card:hover{transform:translateY(-8px);box-shadow:var(--shadow);}
+  .combo-new{
+    position:absolute;top:16px;right:16px;background:var(--watermelon);color:#fff;
+    font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:999px;
+    animation:pulse-badge 2s ease-in-out infinite;
+  }
+  .combo-card .cat{font-size:24px;margin-bottom:8px;}
+  .combo-card h4{font-size:16px;margin-bottom:4px;}
+  .combo-card .tag{font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;display:block;}
+  .combo-card .price{font-family:'Fredoka',sans-serif;font-size:24px;color:var(--watermelon);font-weight:700;}
+  .combo-card .per{font-size:12px;color:var(--ink-soft);margin-bottom:14px;display:block;}
+  .combo-card li{font-size:12.5px;color:var(--ink-soft);display:flex;gap:6px;margin-bottom:5px;}
+  .combo-card li::before{content:"✓";color:var(--green-mid);font-weight:700;}
+
+  @media (max-width:980px){.combo-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:560px){.combo-grid{grid-template-columns:1fr;}}
+
+  /* ---------- menu ---------- */
+  .menu-tabs{display:flex;gap:14px;margin-bottom:36px;}
+  .menu-tab{
+    padding:13px 26px;border-radius:999px;font-weight:600;font-size:14.5px;
+    background:var(--cream-card);border:1.5px solid var(--line);cursor:pointer;
+    transition:all .3s ease;
+  }
+  .menu-tab.active{background:var(--green-mid);color:#fff;border-color:var(--green-mid);}
+  .menu-panel{display:none;}
+  .menu-panel.active{display:block;animation:fade-up .5s ease both;}
+  .menu-block{margin-bottom:28px;}
+  .menu-block h4{
+    font-size:14px;text-transform:none;color:var(--green-mid);
+    margin-bottom:14px;display:flex;align-items:center;gap:8px;
+  }
+  .menu-block h4::before{content:"";width:20px;height:2px;background:var(--mango);display:inline-block;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:10px;}
+  .chip{
+    background:#fff;border:1px solid var(--line);
+    padding:9px 16px;border-radius:999px;font-size:13.5px;color:var(--ink);
+    transition:transform .25s ease, background .25s ease, color .25s ease, border-color .25s ease;
+  }
+  .chip:hover{
+    transform:translateY(-3px);
+    background:var(--green-mid);color:#fff;border-color:var(--green-mid);
+  }
+  .protein-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px;}
+  .step-card{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);padding:20px;
+  }
+  .step-num{
+    width:28px;height:28px;border-radius:50%;background:var(--mango);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;
+    margin-bottom:12px;font-family:'Fredoka',sans-serif;
+  }
+  .step-card h5{font-size:14.5px;color:var(--green-deep);margin-bottom:10px;font-family:'Fredoka',sans-serif;font-weight:600;}
+
+  /* ---------- careers ---------- */
+  .careers{background:var(--green-deep);color:#fff;}
+  .careers .section-head h2, .careers .kicker{color:#fff;}
+  .careers .section-head p{color:rgba(255,255,255,.75);}
+  .job-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;}
+  .job-card{
+    background:#173d27;border-radius:var(--radius-lg);
+    padding:32px;border:1px solid rgba(255,255,255,.08);
+    transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+    position:relative;overflow:hidden;
+  }
+  .job-card:hover{transform:translateY(-8px);box-shadow:0 26px 50px -18px rgba(0,0,0,.5);border-color:var(--mango);}
+  .job-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--watermelon);color:#fff;font-size:12.5px;font-weight:700;
+    padding:6px 14px;border-radius:999px;margin-bottom:18px;
+  }
+  .job-badge .dot{width:7px;height:7px;border-radius:50%;background:#fff;animation:blink 1.6s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+  .job-card h3{color:#fff;font-size:23px;margin-bottom:8px;}
+  .job-card .sub{color:rgba(255,255,255,.7);font-size:14px;margin-bottom:22px;}
+  .job-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+  .job-detail{
+    background:rgba(255,255,255,.06);border-radius:var(--radius-sm);
+    padding:14px 16px;
+  }
+  .job-detail .lbl{font-size:11.5px;color:var(--mango);font-weight:700;letter-spacing:.02em;display:block;margin-bottom:4px;}
+  .job-detail .val{font-size:14.5px;color:#fff;font-weight:500;}
+  .job-perks{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;}
+  .job-perk{
+    font-size:12.5px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.85);
+    padding:7px 13px;border-radius:999px;
+  }
+  .job-salary{
+    font-family:'Fredoka',sans-serif;font-size:30px;font-weight:700;color:var(--mango);
+    margin-bottom:2px;
+  }
+  .job-salary-note{font-size:12.5px;color:rgba(255,255,255,.65);margin-bottom:20px;display:block;}
+
+  @media (max-width:900px){.job-grid{grid-template-columns:1fr;}.job-detail-grid{grid-template-columns:1fr 1fr;}}
+
+  /* ---------- contact ---------- */
+  .contact-cta{
+    background:var(--cream);
+    padding:20px 0 80px;
+  }
+  .contact-box{
+    background:linear-gradient(160deg,var(--mango),var(--mango-deep));
+    border-radius:var(--radius-lg);
+    padding:50px 44px;
+    box-shadow:0 30px 60px -22px rgba(201,130,15,.55);
+    position:relative;overflow:hidden;
+  }
+  .contact-box::after{
+    content:"🍓";position:absolute;right:-18px;bottom:-30px;font-size:150px;opacity:.16;
+    transform:rotate(-12deg);
+  }
+  .contact-inner{
+    display:flex;align-items:center;justify-content:space-between;gap:30px;flex-wrap:wrap;
+    position:relative;z-index:1;
+  }
+  .contact-inner h2{color:#fff;font-size:clamp(1.6rem,3vw,2.2rem);}
+  .contact-inner p{color:rgba(255,255,255,.9);margin-top:8px;font-size:15px;}
+  .contact-numbers{display:flex;gap:14px;flex-wrap:wrap;}
+  .num-pill{
+    background:#fff;color:var(--green-deep);font-weight:700;
+    padding:14px 24px;border-radius:999px;display:flex;align-items:center;gap:10px;
+    font-size:16px;box-shadow:0 10px 22px -10px rgba(0,0,0,.35);
+    transition:transform .25s ease;
+  }
+  .num-pill:hover{transform:translateY(-3px) scale(1.03);}
+
+  @media (max-width:600px){
+    .contact-box{padding:36px 24px;border-radius:var(--radius-md);}
+  }
+
+  /* ---------- footer ---------- */
+  footer{background:var(--green-deep);color:rgba(255,255,255,.7);padding:44px 0 26px;}
+  .footer-top{
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;
+    padding-bottom:26px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:22px;
+  }
+  .footer-brand{display:flex;align-items:center;gap:10px;color:#fff;font-family:'Fredoka',sans-serif;font-size:20px;font-weight:700;}
+  .footer-tags{display:flex;gap:26px;flex-wrap:wrap;font-size:13.5px;}
+  .footer-tags span{display:flex;align-items:center;gap:6px;}
+  .footer-bottom{text-align:center;font-size:12.5px;}
+
+  /* ---------- floating whatsapp ---------- */
+  .float-whatsapp{
+    position:fixed;bottom:26px;right:26px;z-index:250;
+    width:60px;height:60px;border-radius:50%;
+    background:#25D366;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:28px;
+    box-shadow:0 14px 28px -10px rgba(37,211,102,.6);
+    animation:float-bob 2.6s ease-in-out infinite;
+  }
+  .float-whatsapp::before{
+    content:"";position:absolute;inset:0;border-radius:50%;
+    border:2px solid #25D366;animation:ring-pulse 2.2s ease-out infinite;
+  }
+  @keyframes ring-pulse{
+    0%{transform:scale(1);opacity:.7;}
+    100%{transform:scale(1.7);opacity:0;}
+  }
+  @keyframes float-bob{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-8px);}
+  }
+
+  ::selection{background:var(--mango);color:#fff;}
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+<div class="leaf-layer" id="leafLayer"></div>
+
+<!-- ================= NAV ================= -->
+<header class="nav" id="nav">
+  <div class="nav-brand">
+    <div class="nav-leaf">🌿</div>
+    <span>Susampad</span>
+  </div>
+  <nav class="nav-links" id="navLinks">
+    <a href="#plans">Plans</a>
+    <a href="#menu">Menu</a>
+    <a href="#offers">Offers</a>
+    <a href="#careers">Careers</a>
+    <a href="#contact">Contact</a>
+    <a href="#contact" class="nav-cta">Order Now</a>
+  </nav>
+  <button class="nav-toggle" id="navToggle">☰</button>
+</header>
+<div class="nav-overlay" id="navOverlay"></div>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <span class="blob" style="font-size:200px;top:2%;left:-4%;">🍍</span>
+  <span class="blob" style="font-size:150px;bottom:4%;left:1%;animation-delay:2s;">🍉</span>
+  <span class="blob" style="font-size:120px;top:10%;right:-2%;animation-delay:1.2s;opacity:.85;">🥭</span>
+  <div class="wrap hero-grid">
+    <div>
+      <div class="hero-eyebrow">🥗 Freshly made, naturally healthy — since 2024</div>
+      <h1>
+        <span class="line"><span>Healthy Food,</span></span>
+        <span class="line"><span>Happy Life —</span></span>
+        <span class="line"><span>Straight To Your Door.</span></span>
+      </h1>
+      <p class="lead">Fresh fruit bowls, protein bowls, juices and Ragi Java — prepared every morning with clean ingredients, no added sugar, and delivered before you even sit down for breakfast. Real produce, real nutrition, zero shortcuts — a healthier you starts with one bowl.</p>
+      <div class="fruit-tags">
+        <span class="fruit-tag" style="--tag:#df4a3f;">🍓 Strawberry</span>
+        <span class="fruit-tag" style="--tag:#efa421;">🥭 Mango</span>
+        <span class="fruit-tag" style="--tag:#63b23f;">🍇 Grapes</span>
+        <span class="fruit-tag" style="--tag:#e0574f;">🍉 Watermelon</span>
+        <span class="fruit-tag" style="--tag:#f0932b;">🍍 Pineapple</span>
+        <span class="fruit-tag" style="--tag:#8bc34a;">🥝 Kiwi</span>
+      </div>
+      <div class="hero-actions">
+        <a href="#contact" class="btn btn-primary">📲 Order on WhatsApp</a>
+        <a href="#plans" class="btn btn-ghost">View Healthy Plans</a>
+      </div>
+      <div class="hero-stats">
+        <div><span class="num" data-count="1200">0</span><span class="lbl">Happy Customers</span></div>
+        <div><span class="num" data-count="26">0</span><span class="lbl">Days Plan</span></div>
+        <div><span class="num" data-count="6">0</span><span class="lbl">AM–9AM Delivery</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="bowl-core">🥗</div>
+      <div class="orbit" style="animation:orbit-spin 16s linear infinite;">
+        <span style="--r:150px;">🍓</span>
+      </div>
+      <div class="orbit" style="animation:orbit-spin 20s linear infinite reverse;">
+        <span style="--r:180px;">🥝</span>
+      </div>
+      <div class="orbit" style="animation:orbit-spin 24s linear infinite;">
+        <span style="--r:130px;">🍇</span>
+      </div>
+      <div class="orbit" style="animation:orbit-spin 18s linear infinite reverse;">
+        <span style="--r:200px;">🍊</span>
+      </div>
+      <div class="orbit" style="animation:orbit-spin 22s linear infinite;">
+        <span style="--r:165px;">🍉</span>
+      </div>
+      <div class="orbit" style="animation:orbit-spin 26s linear infinite reverse;">
+        <span style="--r:145px;">🍒</span>
+      </div>
+      <div class="orbit" style="animation:orbit-spin 19s linear infinite;">
+        <span style="--r:210px;">🍎</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- wave -->
+<svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none"><path fill="#123822" d="M0,32 C240,64 480,0 720,16 C960,32 1200,64 1440,24 L1440,60 L0,60 Z"></path></svg>
+
+<!-- ================= MARQUEE ================= -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item"><b>1200+</b> Happy Customers</span>
+    <span class="marquee-item">🌿 Clean Ingredients, Real Freshness</span>
+    <span class="marquee-item">👩‍🍳 Prepared Fresh Every Day</span>
+    <span class="marquee-item">🚚 On Time Delivery 6AM – 9AM</span>
+    <span class="marquee-item">📦 Safe Packaging, Hygienic &amp; Secure</span>
+    <span class="marquee-item"><b>1200+</b> Happy Customers</span>
+    <span class="marquee-item">🌿 Clean Ingredients, Real Freshness</span>
+    <span class="marquee-item">👩‍🍳 Prepared Fresh Every Day</span>
+    <span class="marquee-item">🚚 On Time Delivery 6AM – 9AM</span>
+    <span class="marquee-item">📦 Safe Packaging, Hygienic &amp; Secure</span>
+  </div>
+</div>
+
+<!-- ================= DELIVERY AREA CHECK ================= -->
+<!-- 👉 Replace the href below with the link to your delivery-check page -->
+<section class="delivery-check">
+  <div class="wrap">
+    <a href="index.html" class="delivery-card reveal">
+      <div class="delivery-left">
+        <div class="delivery-pin">
+          <span class="ring"></span>
+          <span class="ring"></span>
+          <span class="ring"></span>
+          <span class="core">📍</span>
+        </div>
+        <div>
+          <h3>Do we deliver to your location?</h3>
+          <p>Check whether we're serving your area yet — enter your location and find out in seconds.</p>
+        </div>
+      </div>
+      <span class="delivery-cta">Check My Location <span class="arrow">→</span></span>
+    </a>
+  </div>
+</section>
+
+<!-- ================= FEATURES ================= -->
+<section class="section-pad">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="kicker">Why Susampad</div>
+      <h2>Made the way food should be made</h2>
+      <p>No shortcuts, no preservatives — just fresh produce prepped daily and delivered while it's still cool from the morning.</p>
+    </div>
+    <div class="features-grid reveal-stagger">
+      <div class="feature-card"><div class="feature-icon">🌱</div><h4>Fresh &amp; Natural</h4><p>Every morning, no exceptions.</p></div>
+      <div class="feature-card"><div class="feature-icon">🧪</div><h4>No Preservatives</h4><p>No added sugar, ever.</p></div>
+      <div class="feature-card"><div class="feature-icon">❤️</div><h4>Made With Love</h4><p>For your health, every single bowl.</p></div>
+      <div class="feature-card"><div class="feature-icon">🛡️</div><h4>Hygienic &amp; Safe</h4><p>Prepared daily under clean conditions.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PRICING ================= -->
+<section class="pricing section-pad" id="plans">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="kicker">Healthy Plans</div>
+      <h2>A plan for every kind of appetite</h2>
+      <p>Freshly made, naturally healthy. Choose the bowl that fits your goals.</p>
+    </div>
+    <div class="basics-row reveal">
+      <div class="basic-pill">📅 26 Days Plan</div>
+      <div class="basic-pill">🗓️ Sundays Off</div>
+      <div class="basic-pill">🚚 Free Delivery Included</div>
+    </div>
+    <div class="price-grid reveal-stagger">
+      <div class="price-card">
+        <div class="cat">🍓</div>
+        <h3>Fruit Bowl</h3>
+        <span class="price">₹2,499</span>
+        <span class="per">/ month</span>
+        <ul>
+          <li>Fresh fruits daily</li>
+          <li>No sugar, no preservatives</li>
+          <li>Fresh, hydrating, nutritious</li>
+        </ul>
+        <span class="delivery-note">Free delivery included</span>
+      </div>
+      <div class="price-card">
+        <div class="price-tag">Optional Egg</div>
+        <div class="cat">🍓🥚</div>
+        <h3>Fruit Bowl + Desi Egg</h3>
+        <span class="price">₹2,599</span>
+        <span class="per">/ month · boiled desi egg (4 days/week)</span>
+        <ul>
+          <li>Fresh fruits daily</li>
+          <li>No sugar, no preservatives</li>
+          <li>Fresh, hydrating, nutritious</li>
+        </ul>
+        <span class="delivery-note">Free delivery included</span>
+      </div>
+      <div class="price-card highlight">
+        <div class="cat">💪</div>
+        <h3>Protein Bowl Veg (with Protein Bar)</h3>
+        <span class="price">₹2,699</span>
+        <span class="per">/ month · high protein, keeps you full</span>
+        <ul>
+          <li>High protein · high fibre</li>
+          <li>Supports healthy weight</li>
+          <li>No sugar, no preservatives</li>
+        </ul>
+        <span class="delivery-note">Free delivery included</span>
+      </div>
+      <div class="price-card">
+        <div class="price-tag">Optional Egg</div>
+        <div class="cat">💪🥚</div>
+        <h3>Protein Bowl + Desi Egg</h3>
+        <span class="price">₹2,699</span>
+        <span class="per">/ month · boiled desi egg (4 days/week)</span>
+        <ul>
+          <li>High protein · high fibre</li>
+          <li>Supports healthy weight</li>
+          <li>No sugar, no preservatives</li>
+        </ul>
+        <span class="delivery-note">Free delivery included</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= OFFERS ================= -->
+<section class="section-pad" id="offers">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="kicker">Monsoon Special Offers</div>
+      <h2>Subscribe longer, save more</h2>
+      <p>Offers applicable on Fruit Bowl &amp; Protein Bowl plans only.</p>
+    </div>
+    <div class="offers-grid reveal">
+      <div class="save-list">
+        <div class="save-row"><span class="save-amt">Save ₹500</span><span class="save-plan">2 Months Plan</span></div>
+        <div class="save-row"><span class="save-amt">Save ₹900</span><span class="save-plan">3 Months Plan</span></div>
+        <div class="save-row"><span class="save-amt">Save ₹1,200</span><span class="save-plan">4 Months Plan</span></div>
+      </div>
+      <div class="refer-card">
+        <h3>Refer a Friend</h3>
+        <div class="big">₹200 OFF</div>
+        <p>On each subscription referral — no maximum limit.</p>
+      </div>
+    </div>
+    <p class="offer-note reveal">* Offers applicable on Fruit Bowl &amp; Protein Bowl plans only.</p>
+  </div>
+</section>
+
+<!-- ================= EGG ADD-ONS ================= -->
+<section class="section-pad" style="padding-top:0;">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="kicker">Egg Add-on Upgrades</div>
+      <h2>Boost any bowl with desi eggs</h2>
+    </div>
+    <div class="addon-grid reveal-stagger">
+      <div class="addon-card">
+        <span class="egg-icon">🥚</span>
+        <h4>Upgrade to Daily 1 Desi Egg (26 Days)</h4>
+        <div class="addon-price">₹129 extra</div>
+      </div>
+      <div class="addon-card">
+        <span class="egg-icon">🥚🥚</span>
+        <h4>Upgrade to 2 Desi Eggs / Day (4 Days a Week)</h4>
+        <div class="addon-price">₹239 extra</div>
+      </div>
+      <div class="addon-card">
+        <span class="egg-icon">🥚🥚</span>
+        <h4>Upgrade to 2 Desi Eggs Daily (26 Days)</h4>
+        <div class="addon-price">₹539 extra</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COMBOS ================= -->
+<section class="combos section-pad">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="kicker">Combo &amp; Extra Plans</div>
+      <h2>More than a bowl — complete routines</h2>
+    </div>
+    <div class="combo-grid reveal-stagger">
+      <div class="combo-card">
+        <div class="cat">💪🥤</div>
+        <h4>Protein Combo</h4>
+        <span class="tag">Protein Bowl + Juice</span>
+        <span class="price">₹3,899</span>
+        <span class="per">/ 26 days</span>
+        <ul>
+          <li>Complete meal + juice</li>
+          <li>Better nutrition</li>
+          <li>Saves delivery charges</li>
+        </ul>
+      </div>
+      <div class="combo-card">
+        <div class="cat">🍓🥤</div>
+        <h4>Fruit Combo</h4>
+        <span class="tag">Fruit Bowl + Juice</span>
+        <span class="price">₹3,699</span>
+        <span class="per">/ 26 days</span>
+        <ul>
+          <li>Fresh fruits + juice</li>
+          <li>Energy · hydration</li>
+          <li>Saves delivery charges</li>
+        </ul>
+      </div>
+      <div class="combo-card">
+        <div class="cat">🧃</div>
+        <h4>Juice Plan</h4>
+        <span class="tag">Fresh · Natural · Pure</span>
+        <span class="price">₹1,499</span>
+        <span class="per">/ 26 days</span>
+        <ul>
+          <li>Fresh juice daily (350ml)</li>
+          <li>No sugar, no preservatives</li>
+          <li>Detox · hydration · energy</li>
+        </ul>
+      </div>
+      <div class="combo-card">
+        <div class="combo-new">NEW</div>
+        <div class="cat">🍵</div>
+        <h4>Ragi Java</h4>
+        <span class="tag">Traditional · Healthy · Filling</span>
+        <span class="price">₹1,399</span>
+        <span class="per">/ 26 days</span>
+        <ul>
+          <li>Plain Ragi Java &amp; Ragi Java + Curd</li>
+          <li>Rich in calcium &amp; fibre</li>
+          <li>Good for weight management</li>
+        </ul>
+      </div>
+    </div>
+    <p class="offer-note reveal">Items are served on a rotational basis. Daily ingredients may vary according to freshness and seasonal availability.</p>
+  </div>
+</section>
+
+<!-- ================= MENU ================= -->
+<section class="section-pad" id="menu">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="kicker">Susampad Menu</div>
+      <h2>Fresh · Healthy · Nutritious</h2>
+      <p>Balanced nutrition, hygienic preparation, made with love.</p>
+    </div>
+
+    <div class="menu-tabs reveal">
+      <div class="menu-tab active" data-tab="fruit">🍓 Fruit Bowl</div>
+      <div class="menu-tab" data-tab="protein">💪 Protein Bowl</div>
+    </div>
+
+    <div class="menu-panel active" id="fruit-panel">
+      <p style="margin-bottom:24px;font-weight:600;color:var(--green-mid);">Daily 5 varieties, rotating fresh every day.</p>
+      <div class="menu-block">
+        <h4>Fruits (Rotating Daily)</h4>
+        <div class="chip-row">
+          <span class="chip">Apple</span><span class="chip">Banana</span><span class="chip">Papaya</span>
+          <span class="chip">Muskmelon</span><span class="chip">Watermelon</span><span class="chip">Pomegranate</span>
+          <span class="chip">Grapes</span><span class="chip">Guava</span><span class="chip">Mango</span>
+          <span class="chip">Pineapple</span><span class="chip">Dragon Fruit</span><span class="chip">Jackfruit</span>
+          <span class="chip">Fruit Skewer</span><span class="chip">Seasonal Fruits</span>
+        </div>
+      </div>
+      <div class="menu-block">
+        <h4>Veggies (Rotating Daily)</h4>
+        <div class="chip-row">
+          <span class="chip">Cucumber (Keera)</span><span class="chip">Carrot</span><span class="chip">Beetroot</span>
+        </div>
+      </div>
+      <div class="menu-block">
+        <h4>Boiled Item (Rotating Daily)</h4>
+        <div class="chip-row"><span class="chip">Sweet Corn</span><span class="chip">Sweet Potato</span></div>
+      </div>
+      <div class="menu-block">
+        <h4>Salad</h4>
+        <div class="chip-row"><span class="chip">Protein Salad</span></div>
+      </div>
+      <div class="menu-block">
+        <h4>Sprouts</h4>
+        <div class="chip-row"><span class="chip">Sprouts (Weekly 2 Days)</span></div>
+      </div>
+      <div class="menu-block">
+        <h4>Additional Goodness</h4>
+        <div class="chip-row"><span class="chip">Dry Fruits – Mixed Seeds with Dates</span><span class="chip">Dry Fruits Chikki</span></div>
+      </div>
+      <div class="menu-block">
+        <h4>Desi Egg (Weekly 4 Days, If Preferred)</h4>
+        <div class="chip-row"><span class="chip">Boiled Desi Egg</span></div>
+      </div>
+    </div>
+
+    <div class="menu-panel" id="protein-panel">
+      <p style="margin-bottom:24px;font-weight:600;color:var(--green-mid);">Fuel your body. Power your day.</p>
+      <div class="protein-steps">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h5>Protein Salad (Choose 1)</h5>
+          <div class="chip-row">
+            <span class="chip">Soya Salad</span><span class="chip">Black Chana Salad</span>
+            <span class="chip">Peanuts Salad</span><span class="chip">White Chana Salad</span>
+            <span class="chip">Rajma Salad</span><span class="chip">Sprouts Salad</span>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h5>One Fruit (Choose 1)</h5>
+          <div class="chip-row">
+            <span class="chip">Apple</span><span class="chip">Banana</span><span class="chip">Papaya</span>
+            <span class="chip">Muskmelon</span><span class="chip">Watermelon</span><span class="chip">Pomegranate</span>
+            <span class="chip">Grapes</span><span class="chip">Guava</span><span class="chip">Mango</span>
+            <span class="chip">Pineapple</span><span class="chip">Dragon Fruit</span><span class="chip">Fruit Skewer</span>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h5>Boiled Item (Choose 1)</h5>
+          <div class="chip-row">
+            <span class="chip">Sweet Potato</span><span class="chip">Sweet Corn</span>
+            <span class="chip">Desi Egg (Weekly 4 Days, If Preferred)</span>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <h5>Additional Goodness (Rotating Daily)</h5>
+          <div class="chip-row">
+            <span class="chip">Dry Fruits – Mixed Seeds with Dates</span>
+            <span class="chip">Dry Fruits Chikki</span><span class="chip">Protein Bar</span>
+          </div>
+        </div>
+      </div>
+      <div class="menu-block" style="margin-top:26px;">
+        <h4>Protein Bar</h4>
+        <p style="font-size:13.5px;">High in Protein · No Added Sugar · Made with Dates, Nuts &amp; Seeds</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CAREERS ================= -->
+<section class="careers section-pad" id="careers">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="kicker">We're Hiring</div>
+      <h2>Join our Susampad team</h2>
+      <p>Help us deliver health &amp; happiness every morning.</p>
+    </div>
+
+    <div class="job-grid reveal-stagger">
+
+      <div class="job-card">
+        <div class="job-badge"><span class="dot"></span> Hiring Now</div>
+        <h3>Fruits Cutting &amp; Salad Preparation</h3>
+        <div class="sub">Be a part of our healthy journey.</div>
+        <div class="job-detail-grid">
+          <div class="job-detail"><span class="lbl">PART TIME</span><span class="val">4 AM – 7 AM</span></div>
+          <div class="job-detail"><span class="lbl">PART TIME</span><span class="val">6 AM – 10 AM</span></div>
+          <div class="job-detail" style="grid-column:1/-1;"><span class="lbl">FULL TIME</span><span class="val">9 AM – 6 PM</span></div>
+        </div>
+        <div class="job-perks">
+          <span class="job-perk">🌿 Healthy work environment</span>
+          <span class="job-perk">🤝 Friendly team</span>
+          <span class="job-perk">⏰ Fixed timings</span>
+          <span class="job-perk">📈 Grow with Susampad</span>
+        </div>
+        <a href="#contact" class="btn btn-primary" style="margin-top:6px;">📞 Interested? Contact Us</a>
+      </div>
+
+      <div class="job-card">
+        <div class="job-badge"><span class="dot"></span> Hiring Now</div>
+        <h3>Delivery Partner</h3>
+        <div class="sub">Deliver more smiles every morning.</div>
+        <div class="job-salary">₹10,000 / month</div>
+        <span class="job-salary-note">+ Attractive incentives</span>
+        <div class="job-detail-grid">
+          <div class="job-detail"><span class="lbl">WORK HOURS</span><span class="val">6 AM – 9 AM (2–3 hrs)</span></div>
+          <div class="job-detail"><span class="lbl">SUNDAYS OFF</span><span class="val">Enjoy your weekends</span></div>
+          <div class="job-detail"><span class="lbl">AGE LIMIT</span><span class="val">21 – 45 years</span></div>
+          <div class="job-detail"><span class="lbl">EXPERIENCE</span><span class="val">Min. 6 months in delivery</span></div>
+          <div class="job-detail" style="grid-column:1/-1;"><span class="lbl">PREFERRED AREAS</span><span class="val">KPHB · Kukatpally · JNTU · Hafeezpet</span></div>
+        </div>
+        <div class="job-perks">
+          <span class="job-perk">🌿 Healthy work environment</span>
+          <span class="job-perk">🤝 Supportive team</span>
+          <span class="job-perk">🎁 Performance incentives</span>
+          <span class="job-perk">⭐ Make every delivery count</span>
+        </div>
+        <a href="#contact" class="btn btn-primary" style="margin-top:6px;">🔗 Apply Now — link in bio</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section class="contact-cta" id="contact">
+  <div class="wrap">
+    <div class="contact-box reveal">
+      <div class="contact-inner">
+        <div>
+          <h2>Interested? Contact us.</h2>
+          <p>Order now on WhatsApp · Delivery timings 6 AM – 9 AM</p>
+        </div>
+        <div class="contact-numbers">
+          <a class="num-pill" href="tel:9441238332">📞 94412 38332</a>
+          <a class="num-pill" href="tel:8500516706">📞 85005 16706</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">🌿 Susampad</div>
+      <div class="footer-tags">
+        <span>🌱 Fresh Ingredients</span>
+        <span>🍲 Nutritious Food</span>
+        <span>💚 Better You, Everyday!</span>
+      </div>
+    </div>
+    <div class="footer-bottom">Susampad — Healthy Food, Happy Life. Est. 2024. Stay Fresh. Stay Healthy.</div>
+  </div>
+</footer>
+
+<a class="float-whatsapp" href="tel:8500516706" aria-label="Contact Susampad">💬</a>
+
+<script>
+  // nav scroll state + scroll progress bar
+  const nav = document.getElementById('nav');
+  const scrollProgress = document.getElementById('scrollProgress');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+    const h = document.documentElement;
+    const pct = (h.scrollTop || document.body.scrollTop) / ((h.scrollHeight || document.body.scrollHeight) - h.clientHeight) * 100;
+    scrollProgress.style.width = pct + '%';
+  });
+
+  // falling leaves
+  const leafLayer = document.getElementById('leafLayer');
+  const leafEmojis = ['🍃','🌿','🍓','🥝'];
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!prefersReduced) {
+    const leafCount = window.innerWidth < 700 ? 8 : 14;
+    for (let i = 0; i < leafCount; i++) {
+      const leaf = document.createElement('span');
+      leaf.className = 'leaf';
+      leaf.textContent = leafEmojis[Math.floor(Math.random() * leafEmojis.length)];
+      leaf.style.left = Math.random() * 100 + 'vw';
+      leaf.style.fontSize = (14 + Math.random() * 14) + 'px';
+      const duration = 10 + Math.random() * 14;
+      leaf.style.animationDuration = duration + 's';
+      leaf.style.animationDelay = (Math.random() * duration) + 's';
+      leafLayer.appendChild(leaf);
+    }
+  }
+
+  // mobile nav toggle
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  const navOverlay = document.getElementById('navOverlay');
+  function setNavOpen(isOpen) {
+    navLinks.classList.toggle('open', isOpen);
+    navOverlay.classList.toggle('open', isOpen);
+    navToggle.textContent = isOpen ? '✕' : '☰';
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+  navToggle.addEventListener('click', () => setNavOpen(!navLinks.classList.contains('open')));
+  navOverlay.addEventListener('click', () => setNavOpen(false));
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setNavOpen(false)));
+
+  // reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal, .reveal-stagger');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+  // counters
+  const counters = document.querySelectorAll('[data-count]');
+  const counterIO = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = parseInt(el.getAttribute('data-count'), 10);
+        let start = 0;
+        const duration = 1400;
+        const startTime = performance.now();
+        function tick(now) {
+          const progress = Math.min((now - startTime) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(eased * target).toLocaleString('en-IN');
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        counterIO.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(el => counterIO.observe(el));
+
+  // 3D tilt on pricing / combo / addon cards
+  if (!prefersReduced) {
+    document.querySelectorAll('.price-card, .combo-card, .job-card').forEach(card => {
+      card.style.transformStyle = 'preserve-3d';
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform = `perspective(700px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateY(-8px)`;
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+    });
+  }
+
+  // menu tabs
+  const tabs = document.querySelectorAll('.menu-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(tab.dataset.tab + '-panel').classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
