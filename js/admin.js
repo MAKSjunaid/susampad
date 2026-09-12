@@ -11,6 +11,7 @@
  * - Deleting polygons
  * - Loading delivery areas from JSON
  * - Exporting delivery areas as delivery-areas.json
+ * - Clearing all delivery areas
  *
  * ========================================================= */
 
@@ -26,8 +27,8 @@ const ADMIN_PASSWORD = "fruit123";
 const loginScreen =
     document.getElementById("loginScreen");
 
-const adminPanel =
-    document.getElementById("adminPanel");
+const adminScreen =
+    document.getElementById("adminScreen");
 
 const loginButton =
     document.getElementById("loginButton");
@@ -41,35 +42,14 @@ const passwordInput =
 const loginError =
     document.getElementById("loginError");
 
+const logoutButton =
+    document.getElementById("logoutButton");
 
-loginButton.addEventListener("click", function () {
+const saveButton =
+    document.getElementById("saveButton");
 
-    const username =
-        usernameInput.value.trim();
-
-    const password =
-        passwordInput.value;
-
-
-    if (
-        username === ADMIN_USERNAME &&
-        password === ADMIN_PASSWORD
-    ) {
-
-        loginScreen.style.display = "none";
-
-        adminPanel.style.display = "block";
-
-        initializeMap();
-
-    } else {
-
-        loginError.textContent =
-            "Invalid username or password.";
-
-    }
-
-});
+const clearButton =
+    document.getElementById("clearButton");
 
 
 /* =========================================================
@@ -84,9 +64,99 @@ const DELIVERY_AREAS_FILE =
    MAP VARIABLES
    ========================================================= */
 
-let map;
+let map = null;
 
-let drawnItems;
+let drawnItems = null;
+
+
+/* =========================================================
+   LOGIN BUTTON
+   ========================================================= */
+
+loginButton.addEventListener(
+    "click",
+    function () {
+
+        const username =
+            usernameInput.value.trim();
+
+        const password =
+            passwordInput.value;
+
+
+        if (
+            username === ADMIN_USERNAME &&
+            password === ADMIN_PASSWORD
+        ) {
+
+            loginError.textContent = "";
+
+            loginScreen.classList.add("hidden");
+
+            adminScreen.classList.remove("hidden");
+
+            initializeMap();
+
+        } else {
+
+            loginError.textContent =
+                "Invalid username or password.";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ENTER KEY LOGIN
+   ========================================================= */
+
+passwordInput.addEventListener(
+    "keydown",
+    function (event) {
+
+        if (event.key === "Enter") {
+
+            loginButton.click();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   LOGOUT BUTTON
+   ========================================================= */
+
+logoutButton.addEventListener(
+    "click",
+    function () {
+
+        if (map) {
+
+            map.remove();
+
+            map = null;
+
+            drawnItems = null;
+
+        }
+
+
+        adminScreen.classList.add("hidden");
+
+        loginScreen.classList.remove("hidden");
+
+        usernameInput.value = "";
+
+        passwordInput.value = "";
+
+        loginError.textContent = "";
+
+    }
+);
 
 
 /* =========================================================
@@ -95,7 +165,22 @@ let drawnItems;
 
 function initializeMap() {
 
-    map = L.map("map").setView(
+    /* -----------------------------------------------------
+       Prevent duplicate initialization
+       ----------------------------------------------------- */
+
+    if (map) {
+
+        return;
+
+    }
+
+
+    /* -----------------------------------------------------
+       CREATE MAP
+       ----------------------------------------------------- */
+
+    map = L.map("adminMap").setView(
         [17.3850, 78.4867],
         11
     );
@@ -109,8 +194,9 @@ function initializeMap() {
         "https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png",
         {
             maxZoom: 19,
+
             attribution:
-                '&copy; OpenStreetMap contributors'
+                "&copy; OpenStreetMap contributors"
         }
     ).addTo(map);
 
@@ -122,11 +208,13 @@ function initializeMap() {
     drawnItems =
         new L.FeatureGroup();
 
-    map.addLayer(drawnItems);
+    map.addLayer(
+        drawnItems
+    );
 
 
     /* -----------------------------------------------------
-       DRAW CONTROLS
+       DRAW CONTROL
        ----------------------------------------------------- */
 
     const drawControl =
@@ -145,13 +233,16 @@ function initializeMap() {
 
                 polygon: {
 
-                    allowIntersection: false,
+                    allowIntersection:
+                        false,
 
-                    showArea: true,
+                    showArea:
+                        true,
 
                     shapeOptions: {
 
-                        color: "#22c55e",
+                        color:
+                            "#22c55e",
 
                         fillColor:
                             "#22c55e",
@@ -163,22 +254,29 @@ function initializeMap() {
 
                 },
 
-                polyline: false,
+                polyline:
+                    false,
 
-                rectangle: false,
+                rectangle:
+                    false,
 
-                circle: false,
+                circle:
+                    false,
 
-                circlemarker: false,
+                circlemarker:
+                    false,
 
-                marker: false
+                marker:
+                    false
 
             }
 
         });
 
 
-    map.addControl(drawControl);
+    map.addControl(
+        drawControl
+    );
 
 
     /* =====================================================
@@ -192,7 +290,9 @@ function initializeMap() {
             const layer =
                 event.layer;
 
-            drawnItems.addLayer(layer);
+            drawnItems.addLayer(
+                layer
+            );
 
             console.log(
                 "Delivery area created."
@@ -253,9 +353,12 @@ async function loadSavedAreas() {
 
         const response =
             await fetch(
-                DELIVERY_AREAS_FILE,
+                DELIVERY_AREAS_FILE +
+                "?t=" +
+                Date.now(),
                 {
-                    cache: "no-store"
+                    cache:
+                        "no-store"
                 }
             );
 
@@ -288,7 +391,7 @@ async function loadSavedAreas() {
 
 
         /* -------------------------------------------------
-           ADD EACH AREA TO MAP
+           ADD EXISTING AREAS TO MAP
            ------------------------------------------------- */
 
         data.areas.forEach(
@@ -362,6 +465,20 @@ async function loadSavedAreas() {
 
 
 /* =========================================================
+   SAVE BUTTON
+   ========================================================= */
+
+saveButton.addEventListener(
+    "click",
+    function () {
+
+        saveAreas();
+
+    }
+);
+
+
+/* =========================================================
    SAVE / EXPORT DELIVERY AREAS
    ========================================================= */
 
@@ -401,9 +518,11 @@ function saveAreas() {
 
                             return {
 
-                                lat: point.lat,
+                                lat:
+                                    point.lat,
 
-                                lng: point.lng
+                                lng:
+                                    point.lng
 
                             };
 
@@ -411,7 +530,9 @@ function saveAreas() {
                     );
 
 
-                areas.push(points);
+                areas.push(
+                    points
+                );
 
             }
 
@@ -425,7 +546,8 @@ function saveAreas() {
 
     const data = {
 
-        areas: areas
+        areas:
+            areas
 
     };
 
@@ -459,10 +581,13 @@ function saveAreas() {
 
 
     const link =
-        document.createElement("a");
+        document.createElement(
+            "a"
+        );
 
 
-    link.href = url;
+    link.href =
+        url;
 
     link.download =
         "delivery-areas.json";
@@ -492,8 +617,8 @@ function saveAreas() {
 
     alert(
         "Delivery areas exported successfully!\n\n" +
-        "Now replace data/delivery-areas.json in your " +
-        "GitHub repository with the downloaded file."
+        "Replace data/delivery-areas.json in your GitHub " +
+        "repository with the downloaded file."
     );
 
 
@@ -503,6 +628,20 @@ function saveAreas() {
     );
 
 }
+
+
+/* =========================================================
+   CLEAR BUTTON
+   ========================================================= */
+
+clearButton.addEventListener(
+    "click",
+    function () {
+
+        clearAllAreas();
+
+    }
+);
 
 
 /* =========================================================
