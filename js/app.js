@@ -1,4 +1,3 @@
-
 /* =========================================================
    SUSAMPAD CUSTOMER DELIVERY CHECK
    =========================================================
@@ -11,6 +10,7 @@
  * - Current location
  * - Searching location
  * - Loading delivery areas from JSON
+ * - Automatically refreshing delivery areas
  * - Checking whether customer is inside delivery area
  * - Showing delivery result
  *
@@ -49,6 +49,22 @@ const DEFAULT_LNG = 78.4867;
 
 const DELIVERY_AREAS_FILE =
     "data/delivery-areas.json";
+
+
+/* =========================================================
+   DELIVERY AREA AUTO REFRESH
+   =========================================================
+ *
+ * The customer page checks the JSON file every 10 seconds.
+ *
+ * This means when you update delivery-areas.json on GitHub,
+ * the customer page can automatically detect the change
+ * without requiring Ctrl + F5.
+ *
+ * ========================================================= */
+
+const DELIVERY_AREA_REFRESH_INTERVAL =
+    10000;
 
 
 /* =========================================================
@@ -179,6 +195,19 @@ let deliveryAreas = null;
 
 
 /* =========================================================
+   DELIVERY AREA VERSION
+   =========================================================
+ *
+ * We keep a simple JSON signature so that we can detect
+ * whether the downloaded delivery areas are different
+ * from the currently displayed areas.
+ *
+ * ========================================================= */
+
+let deliveryAreasSignature = null;
+
+
+/* =========================================================
    LOAD DELIVERY AREAS
    ========================================================= */
 
@@ -189,6 +218,7 @@ async function getDeliveryAreas() {
         return deliveryAreas;
 
     }
+
 
     try {
 
@@ -235,6 +265,9 @@ async function getDeliveryAreas() {
 
             deliveryAreas = [];
 
+            deliveryAreasSignature =
+                "[]";
+
             return deliveryAreas;
 
         }
@@ -242,6 +275,12 @@ async function getDeliveryAreas() {
 
         deliveryAreas =
             data.areas;
+
+
+        deliveryAreasSignature =
+            JSON.stringify(
+                deliveryAreas
+            );
 
 
         console.log(
@@ -265,6 +304,9 @@ async function getDeliveryAreas() {
         );
 
         deliveryAreas = [];
+
+        deliveryAreasSignature =
+            "[]";
 
         return deliveryAreas;
 
@@ -414,6 +456,273 @@ async function drawDeliveryAreas() {
    ========================================================= */
 
 drawDeliveryAreas();
+
+
+/* =========================================================
+   AUTOMATICALLY REFRESH DELIVERY AREAS
+   =========================================================
+ *
+ * This checks GitHub's delivery-areas.json every 10 seconds.
+ *
+ * IMPORTANT:
+ *
+ * We do NOT reload the whole webpage.
+ *
+ * We only:
+ *
+ * 1. Download the latest JSON.
+ * 2. Compare it with the currently loaded JSON.
+ * 3. Redraw polygons only when something changed.
+ *
+ * The strawberry marker and current map position remain
+ * untouched.
+ *
+ * ========================================================= */
+
+async function refreshDeliveryAreas() {
+
+    try {
+
+        const response =
+            await fetch(
+
+                DELIVERY_AREAS_FILE +
+                "?t=" +
+                Date.now(),
+
+                {
+
+                    cache: "no-store"
+
+                }
+
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to refresh delivery areas."
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+
+            !data ||
+
+            !Array.isArray(data.areas)
+
+        ) {
+
+            console.error(
+                "Invalid delivery area JSON during refresh."
+            );
+
+            return;
+
+        }
+
+
+        const newSignature =
+            JSON.stringify(
+                data.areas
+            );
+
+
+        /*
+         * Nothing changed.
+         *
+         * Do not redraw the polygons.
+         */
+
+        if (
+
+            newSignature ===
+            deliveryAreasSignature
+
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+         * Delivery areas have changed.
+         */
+
+        console.log(
+            "Delivery areas changed. Updating map..."
+        );
+
+
+        deliveryAreas =
+            data.areas;
+
+
+        deliveryAreasSignature =
+            newSignature;
+
+
+        /*
+         * Remove old polygons.
+         */
+
+        deliveryPolygonLayers.forEach(
+
+            function (layer) {
+
+                map.removeLayer(layer);
+
+            }
+
+        );
+
+
+        deliveryPolygonLayers.length = 0;
+
+
+        /*
+         * Draw new polygons.
+         */
+
+        deliveryAreas.forEach(
+
+            function (area) {
+
+                if (
+
+                    !Array.isArray(area) ||
+
+                    area.length < 3
+
+                ) {
+
+                    return;
+
+                }
+
+
+                const validPoints =
+                    area
+
+                        .filter(
+
+                            function (point) {
+
+                                return (
+
+                                    point &&
+
+                                    typeof point.lat === "number" &&
+
+                                    typeof point.lng === "number"
+
+                                );
+
+                            }
+
+                        )
+
+                        .map(
+
+                            function (point) {
+
+                                return [
+
+                                    point.lat,
+
+                                    point.lng
+
+                                ];
+
+                            }
+
+                        );
+
+
+                if (
+
+                    validPoints.length < 3
+
+                ) {
+
+                    return;
+
+                }
+
+
+                const polygon =
+                    L.polygon(
+
+                        validPoints,
+
+                        {
+
+                            color: "#63b23f",
+
+                            weight: 3,
+
+                            opacity: 1,
+
+                            fillColor: "#63b23f",
+
+                            fillOpacity: 0.16
+
+                        }
+
+                    ).addTo(map);
+
+
+                deliveryPolygonLayers.push(
+
+                    polygon
+
+                );
+
+            }
+
+        );
+
+
+        console.log(
+            "Delivery areas updated successfully."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+
+            "Unable to refresh delivery areas:",
+
+            error
+
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   START DELIVERY AREA AUTO REFRESH
+   ========================================================= */
+
+setInterval(
+
+    refreshDeliveryAreas,
+
+    DELIVERY_AREA_REFRESH_INTERVAL
+
+);
 
 
 /* =========================================================
@@ -851,7 +1160,9 @@ function moveCustomerMarker(
 
         [
             lat,
+
             lng
+
         ]
 
     );
@@ -861,7 +1172,9 @@ function moveCustomerMarker(
 
         [
             lat,
+
             lng
+
         ],
 
         15,
